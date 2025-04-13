@@ -142,15 +142,15 @@
 				};
 
 				const gui = new GUI();
-				gui.add( effectController, 'newTess', [ 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50 ] ).name( 'Tessellation Level' ).onChange( render );
+				// gui.add( effectController, 'newTess', [ 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50 ] ).name( 'Tessellation Level' ).onChange( render );
 				// gui.add( effectController, 'lid' ).name( 'display lid' ).onChange( render );
 				// gui.add( effectController, 'body' ).name( 'display body' ).onChange( render );
 				// gui.add( effectController, 'bottom' ).name( 'display bottom' ).onChange( render );
 				// gui.add( effectController, 'fitLid' ).name( 'snug lid' ).onChange( render );
-				gui.add( effectController, 'nonblinn' ).name( 'original scale' ).onChange( render );
+				// gui.add( effectController, 'nonblinn' ).name( 'original scale' ).onChange( render );
 				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
 
-				// 🆕 Model picker
+				// Model picker
 				gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {
 					createNewTeapot();
 				});
@@ -215,6 +215,26 @@
 					// Apply material recursively to all meshes in the loaded scene
 					teapot.traverse(function (child) {
 						if (child.isMesh) {
+							// Generate fallback UVs if needed for texture
+							if (shading === 'textured' && !child.geometry.attributes.uv) {
+								child.geometry.computeBoundingBox();
+								const bbox = child.geometry.boundingBox;
+								const size = new THREE.Vector3();
+								bbox.getSize(size);
+			
+								const uvAttr = [];
+								const posAttr = child.geometry.attributes.position;
+			
+								for (let i = 0; i < posAttr.count; i++) {
+									const x = posAttr.getX(i);
+									const y = posAttr.getY(i);
+									const u = (x - bbox.min.x) / size.x;
+									const v = (y - bbox.min.y) / size.y;
+									uvAttr.push(u, v);
+								}
+			
+								child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
+							}
 							child.material = materials[shading];
 						}
 					});
