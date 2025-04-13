@@ -29,21 +29,11 @@
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 			import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js';
 
-			let camera, scene, renderer;
+			let camera, scene, renderer, teapot;
 			let cameraControls;
 			let effectController;
-			// const teapotSize = 300;
 			let ambientLight, light;
-
-			let tess = - 1;	// force initialization
-			let bBottom;
-			let bLid;
-			let bBody;
-			let bFitLid;
-			let bNonBlinn;
-			let shading;
-
-			let teapot, textureCube;
+			let shading, textureCube;
 			const materials = {};
 
 			init();
@@ -160,39 +150,18 @@
 
 			function render() {
 
-				// if ( effectController.newTess !== tess ||
-				// 	effectController.bottom !== bBottom ||
-				// 	effectController.lid !== bLid ||
-				// 	effectController.body !== bBody ||
-				// 	effectController.fitLid !== bFitLid ||
-				// 	effectController.nonblinn !== bNonBlinn ||
-				// 	effectController.newShading !== shading ) {
-
-				// 	tess = effectController.newTess;
-				// 	bBottom = effectController.bottom;
-				// 	bLid = effectController.lid;
-				// 	bBody = effectController.body;
-				// 	bFitLid = effectController.fitLid;
-				// 	bNonBlinn = effectController.nonblinn;
-				// 	shading = effectController.newShading;
-
-				// 	createNewTeapot();
-
-				// }
+				if (effectController.newShading !== shading ) {
+					shading = effectController.newShading;
+					createNewTeapot();
+				}
 
 				// skybox is rendered separately, so that it is always behind the teapot.
 				if ( shading === 'reflective' ) {
-
 					scene.background = textureCube;
-
 				} else {
-
 					scene.background = null;
-
 				}
-
 				renderer.render( scene, camera );
-
 			}
 
 			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
