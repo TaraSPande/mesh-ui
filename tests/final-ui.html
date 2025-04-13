@@ -209,6 +209,7 @@
 				
 				loader.load(modelPath, function (collada) {
 					teapot = collada.scene;
+					teapot.rotation.x = -Math.PI / 2; // Y-up loaded orientation
 					teapot.scale.set(300, 300, 300); // Adjust as needed
 					teapot.rotation.y = Math.PI;     // Optional: Rotate if needed
 
