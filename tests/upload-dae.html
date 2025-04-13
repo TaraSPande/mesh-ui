@@ -14,12 +14,11 @@
 
 		<script type="importmap">
 			{
-				"imports": {
-					"three": "../build/three.module.js",
-					"three/addons/": "../jsm/",
-			    		"three/addons/loaders/": "../jsm/loaders/"
-
-				}
+			  "imports": {
+			    "three": "../build/three.module.js",
+			    "three/addons/": "../jsm/",
+			    "three/addons/loaders/": "../jsm/loaders/"
+			  }
 			}
 		</script>
 
@@ -62,7 +61,7 @@
 			
 			  // Load the teapot.dae file
 			  const loader = new ColladaLoader();
-			  loader.load('models/teapot.dae', function(collada) {
+			  loader.load('../models/teapot.dae', function(collada) {
 			    teapot = collada.scene;
 			    teapot.scale.set(300, 300, 300); // Adjust scale as needed
 			    scene.add(teapot);
