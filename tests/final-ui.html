@@ -204,6 +204,14 @@
 					teapot = collada.scene;
 					teapot.scale.set(300, 300, 300); // Adjust as needed
 					teapot.rotation.y = Math.PI;     // Optional: Rotate if needed
+
+					// Apply material recursively to all meshes in the loaded scene
+					teapot.traverse(function (child) {
+						if (child.isMesh) {
+							child.material = materials[shading];
+						}
+					});
+					
 					scene.add(teapot);
 
 					// Force re-render now that teapot is in the scene
