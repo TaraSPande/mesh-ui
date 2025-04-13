@@ -202,17 +202,13 @@
 
 				}
 
-				const geometry = new TeapotGeometry( teapotSize,
-					tess,
-					effectController.bottom,
-					effectController.lid,
-					effectController.body,
-					effectController.fitLid,
-					! effectController.nonblinn );
-
-				teapot = new THREE.Mesh( geometry, materials[ shading ] );
-
-				scene.add( teapot );
+				const loader = new ColladaLoader();
+				  loader.load('models/teapot.dae', function(collada) {
+				    teapot = collada.scene;
+				    teapot.scale.set(300, 300, 300); // Adjust scale as needed
+				    scene.add(teapot);
+				  });
+				}
 
 			}
 
