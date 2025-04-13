@@ -51,11 +51,13 @@
       const ambient = new THREE.AmbientLight(0xffffff, 0.5);
       scene.add(ambient);
 
-      mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(1, 1, 1),
-        new THREE.MeshStandardMaterial({ color: 'orange', wireframe: false })
-      );
-      scene.add(mesh);
+      // mesh = new THREE.Mesh(
+      //   new THREE.BoxGeometry(1, 1, 1),
+      //   new THREE.MeshStandardMaterial({ color: 'orange', wireframe: false })
+      // );
+      // scene.add(mesh);
+
+      
 
       animate();
     }
@@ -116,6 +118,22 @@
     });
 
     init();
+
+    reader.onload = function (event) {
+    const contents = event.target.result;
+    const loader = new THREE.ColladaLoader();
+    try {
+      const collada = loader.parse(contents);
+      if (mesh) scene.remove(mesh);
+      mesh = collada.scene;
+      console.log('Loaded DAE mesh:', mesh);
+      scene.add(mesh);
+      updateTopologyInfo(mesh);
+    } catch (e) {
+      alert('Error loading DAE file. Check the console for details.');
+      console.error(e);
+    }
+  };
   </script>
 </body>
 </html>
