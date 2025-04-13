@@ -195,20 +195,17 @@
 			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
 			function createNewTeapot() {
 
-				if ( teapot !== undefined ) {
-
-					teapot.geometry.dispose();
-					scene.remove( teapot );
-
+				if (teapot) {
+				    scene.remove(teapot);
 				}
-
+				
 				const loader = new ColladaLoader();
-				  loader.load('../models/teapot.dae', function(collada) {
+				loader.load('../models/teapot.dae', function (collada) {
 				    teapot = collada.scene;
-				    teapot.scale.set(300, 300, 300); // Adjust scale as needed
+				    teapot.scale.set(300, 300, 300); // Adjust as needed
+				    teapot.rotation.y = Math.PI;     // Optional: Rotate if needed
 				    scene.add(teapot);
-				  });
-				}
+				});
 
 			}
 
