@@ -14,8 +14,8 @@
 		<script type="importmap">
 			{
 				"imports": {
-					"three": "../build/three.module.js",
-					"three/addons/": "../jsm/"
+					"three": "./build/three.module.js",
+					"three/addons/": "./jsm/"
 				}
 			}
 		</script>
@@ -81,7 +81,7 @@
 				cameraControls.addEventListener( 'change', render );
 
 				// TEXTURE MAP
-				const textureMap = new THREE.TextureLoader().load( '../textures/uv_grid_opengl.jpg' );
+				const textureMap = new THREE.TextureLoader().load( './textures/uv_grid_opengl.jpg' );
 				textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
 				textureMap.anisotropy = 16;
 				textureMap.colorSpace = THREE.SRGBColorSpace;
@@ -203,7 +203,7 @@
 				}
 				
 				const loader = new ColladaLoader();
-				const modelPath = '../models/' + effectController.model;
+				const modelPath = './models/' + effectController.model;
 				
 				loader.load(modelPath, function (collada) {
 					teapot = collada.scene;
