@@ -16,8 +16,7 @@
 			{
 				"imports": {
 					"three": "./build/three.module.js",
-					"three/addons/": "./jsm/",
-					"three/addons/loaders/": "./jsm/loaders/"
+					"three/addons/": "./jsm/"
 				}
 			}
 		</script>
@@ -30,9 +29,8 @@
 
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 			import { TeapotGeometry } from 'three/addons/geometries/TeapotGeometry.js';
-			import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 
-			let camera, scene, renderer, model;
+			let camera, scene, renderer;
 			let cameraControls;
 			let effectController;
 			const teapotSize = 300;
