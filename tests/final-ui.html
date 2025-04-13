@@ -138,18 +138,23 @@
 					body: true,
 					fitLid: false,
 					nonblinn: false,
-					newShading: 'glossy'
+					newShading: 'glossy',
+					model: 'teapot.dae'
 				};
 
 				const gui = new GUI();
 				gui.add( effectController, 'newTess', [ 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50 ] ).name( 'Tessellation Level' ).onChange( render );
-				gui.add( effectController, 'lid' ).name( 'display lid' ).onChange( render );
-				gui.add( effectController, 'body' ).name( 'display body' ).onChange( render );
-				gui.add( effectController, 'bottom' ).name( 'display bottom' ).onChange( render );
-				gui.add( effectController, 'fitLid' ).name( 'snug lid' ).onChange( render );
+				// gui.add( effectController, 'lid' ).name( 'display lid' ).onChange( render );
+				// gui.add( effectController, 'body' ).name( 'display body' ).onChange( render );
+				// gui.add( effectController, 'bottom' ).name( 'display bottom' ).onChange( render );
+				// gui.add( effectController, 'fitLid' ).name( 'snug lid' ).onChange( render );
 				gui.add( effectController, 'nonblinn' ).name( 'original scale' ).onChange( render );
 				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
 
+				// 🆕 Model picker
+				gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {
+					createNewTeapot();
+				});
 			}
 
 
