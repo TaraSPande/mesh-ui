@@ -39,6 +39,12 @@
 			let shading, textureCube;
 			const materials = {};
 
+			let sourceMesh = null;
+			let targetMesh = null;
+			let morphMesh = null;
+			let sourcePositions = null;
+			let targetPositions = null;
+
 			init();
 			render();
 
@@ -124,12 +130,14 @@
 
 				effectController = {
 					newShading: 'glossy',
-					model: 'teapot.dae'
+					model: 'teapot.dae',
+					morphFactor: 0.0
 				};
 
 				const gui = new GUI();
 				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
 				gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
+				gui.add(effectController, 'morphFactor', 0.0, 1.0, 0.01).name('Morph').onChange(updateMorph);
 			}
 
 
@@ -149,6 +157,48 @@
 				renderer.render( scene, camera );
 			}
 
+			function loadModel(path, onLoad) {
+				const loader = new ColladaLoader();
+				loader.load(path, collada => {
+					const model = collada.scene;
+					model.traverse(child => {
+						if (child.isMesh) {
+							onLoad(child.geometry);
+						}
+					});
+				});
+			}
+
+			function checkReadyToMorph() {
+				if (!sourcePositions || !targetPositions) return;
+			
+				ICP(sourcePositions, targetPositions, 10); // In-place alignment
+				updateMorph(); // Render first frame
+			}
+
+			function updateMorph() {
+				if (!sourcePositions || !targetPositions) return;
+			
+				const alpha = effectController.morphFactor;
+				const interpolated = new Float32Array(sourcePositions.length);
+			
+				for (let i = 0; i < sourcePositions.length; i++) {
+					interpolated[i] = (1 - alpha) * sourcePositions[i] + alpha * targetPositions[i];
+				}
+			
+				if (!morphMesh) {
+					morphMesh = new THREE.Mesh(sourceMesh.clone(), materials[shading]);
+					scene.add(morphMesh);
+				}
+			
+				morphMesh.geometry.setAttribute('position', new THREE.BufferAttribute(interpolated, 3));
+				morphMesh.geometry.attributes.position.needsUpdate = true;
+			
+				smoothMeshPositions(morphMesh.geometry, 0.1); // Optional smoothing
+			
+				render();
+			}
+
 			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
 			function createNewObject() {
 
@@ -156,14 +206,26 @@
 				    scene.remove(object);
 				}
 				
-				const loader = new ColladaLoader();
-				const modelPath = './models/' + effectController.model;
+				// const loader = new ColladaLoader();
+				// const modelPath = './models/' + effectController.model;
 				
-				loader.load(modelPath, function (collada) {
-					object = collada.scene;
-					object.rotation.x = Math.PI / 2; // Y-up loaded orientation
-					object.rotation.y = Math.PI;     // Optional: Rotate if needed
-					object.scale.set(300, 300, 300); // Adjust as needed
+				// loader.load(modelPath, function (collada) {
+				// 	object = collada.scene;
+				// 	object.rotation.x = Math.PI / 2; // Y-up loaded orientation
+				// 	object.rotation.y = Math.PI;     // Optional: Rotate if needed
+				// 	object.scale.set(300, 300, 300); // Adjust as needed
+
+				loadModel('./models/teapot.dae', geo => {
+					sourcePositions = geo.attributes.position.array;
+					sourceMesh = geo;
+					checkReadyToMorph();
+				});
+				
+				loadModel('./models/cow.dae', geo => {
+					targetPositions = geo.attributes.position.array;
+					targetMesh = geo;
+					checkReadyToMorph();
+				});
 
 					// Apply material recursively to all meshes in the loaded scene
 					object.traverse(function (child) {
