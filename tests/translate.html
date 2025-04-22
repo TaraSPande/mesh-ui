@@ -15,7 +15,8 @@
 			{
 				"imports": {
 					"three": "../build/three.module.js",
-					"three/addons/": "../jsm/"
+					"three/addons/": "../jsm/",
+					"backend": "../backend/"
 				}
 			}
 		</script>
@@ -27,6 +28,7 @@
 			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import { applyTransformation } from 'backend/vertex_morphing.js';
 
 			let camera, scene, renderer, object;
 			let cameraControls;
@@ -187,6 +189,37 @@
 							child.material = materials[shading];
 						}
 					});
+
+					if (child.isMesh) {
+						const position = child.geometry.attributes.position;
+						const vertices = [];
+					
+						for (let i = 0; i < position.count; i++) {
+							vertices.push(new Vec3(
+								position.getX(i),
+								position.getY(i),
+								position.getZ(i)
+							));
+						}
+					
+						// Example: rotate 45 degrees around Z and translate by (10, 20, 30)
+						const angle = Math.PI / 4;
+						const rotationMatrix = [
+							[Math.cos(angle), -Math.sin(angle), 0],
+							[Math.sin(angle), Math.cos(angle), 0],
+							[0, 0, 1]
+						];
+						const translation = new Vec3(10, 20, 30);
+					
+						// Apply your transformation
+						applyTransformation(vertices, translation, rotationMatrix);
+					
+						// Update the geometry with new vertex positions
+						for (let i = 0; i < position.count; i++) {
+							position.setXYZ(i, vertices[i].x, vertices[i].y, vertices[i].z);
+						}
+						position.needsUpdate = true;
+					}
 					
 					scene.add(object);
 
