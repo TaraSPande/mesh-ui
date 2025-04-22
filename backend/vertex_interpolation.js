@@ -1,7 +1,9 @@
+import { Vec3 } from './vertex.js';
+
 export class VertexInterpolation {
   // Linear interpolation between two vertex positions
   static linearInterpolate(v1, v2, t) {
-    return v1.multiply(1.0 - t).add(v2.multiply(t));
+    return v1.mul(1.0 - t).add(v2.mul(t));
   }
 
   // Linear interpolation between two meshes (represented as vertex vectors)
@@ -26,10 +28,10 @@ export class VertexInterpolation {
     const mt2 = mt * mt;
     const mt3 = mt2 * mt;
 
-    return p0.multiply(mt3)
-      .add(p1.multiply(3.0 * mt2 * t))
-      .add(p2.multiply(3.0 * mt * t2))
-      .add(p3.multiply(t3));
+    return p0.mul(mt3)
+      .add(p1.mul(3.0 * mt2 * t))
+      .add(p2.mul(3.0 * mt * t2))
+      .add(p3.mul(t3));
   }
 
   // Blend shape interpolation (linear combination of multiple meshes)
@@ -47,7 +49,7 @@ export class VertexInterpolation {
       }
 
       for (let v = 0; v < vertexCount; v++) {
-        result[v] = result[v].add(meshes[m][v].multiply(weights[m]));
+        result[v] = result[v].add(meshes[m][v].mul(weights[m]));
       }
     }
 
@@ -59,10 +61,10 @@ export class VertexInterpolation {
     const t2 = t * t;
     const t3 = t2 * t;
 
-    const a = p1.multiply(0.5)
-      .add(p0.multiply(-0.5 * t + 1.5 * t2 - 1.5 * t3))
-      .add(p2.multiply(2.0 * t - 2.0 * t2 + t3))
-      .add(p3.multiply(-0.5 * t2 + 0.5 * t3));
+    const a = p1.mul(0.5)
+      .add(p0.mul(-0.5 * t + 1.5 * t2 - 1.5 * t3))
+      .add(p2.mul(2.0 * t - 2.0 * t2 + t3))
+      .add(p3.mul(-0.5 * t2 + 0.5 * t3));
     return a;
   }
 
@@ -94,12 +96,12 @@ export class VertexInterpolation {
 
   // Barycentric interpolation for a point in a triangle
   export static barycentricInterpolate(p1, p2, p3, point) {
-    const normal = p2.subtract(p1).cross(p3.subtract(p1)).unit();
-    const projected = point.subtract(normal.multiply(point.subtract(p1).dot(normal)));
+    const normal = p2.sub(p1).cross(p3.sub(p1)).normalize();
+    const projected = point.sub(normal.mul(point.sub(p1).dot(normal)));
 
-    const v0 = p2.subtract(p1);
-    const v1 = p3.subtract(p1);
-    const v2 = projected.subtract(p1);
+    const v0 = p2.sub(p1);
+    const v1 = p3.sub(p1);
+    const v2 = projected.sub(p1);
 
     const d00 = v0.dot(v0);
     const d01 = v0.dot(v1);
@@ -114,44 +116,6 @@ export class VertexInterpolation {
     const w = (d00 * d21 - d01 * d20) / denom;
     const u = 1.0 - v - w;
 
-    return p1.multiply(u).add(p2.multiply(v)).add(p3.multiply(w));
-  }
-}
-
-// Vector3D class to represent 3D points and operations on them
-export class Vector3D {
-  constructor(x = 0, y = 0, z = 0) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
-
-  add(v) {
-    return new Vector3D(this.x + v.x, this.y + v.y, this.z + v.z);
-  }
-
-  subtract(v) {
-    return new Vector3D(this.x - v.x, this.y - v.y, this.z - v.z);
-  }
-
-  multiply(scalar) {
-    return new Vector3D(this.x * scalar, this.y * scalar, this.z * scalar);
-  }
-
-  dot(v) {
-    return this.x * v.x + this.y * v.y + this.z * v.z;
-  }
-
-  cross(v) {
-    return new Vector3D(
-      this.y * v.z - this.z * v.y,
-      this.z * v.x - this.x * v.z,
-      this.x * v.y - this.y * v.x
-    );
-  }
-
-  unit() {
-    const mag = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-    return new Vector3D(this.x / mag, this.y / mag, this.z / mag);
+    return p1.mul(u).add(p2.mul(v)).add(p3.mul(w));
   }
 }
