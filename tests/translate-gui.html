@@ -137,9 +137,9 @@
 				gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
 
 				// Add transformation controls
-				gui.add(effectController, 'translateX', -500, 500).name('Translate X').onChange(applyTransformToObject);
-				gui.add(effectController, 'translateY', -500, 500).name('Translate Y').onChange(applyTransformToObject);
-				gui.add(effectController, 'translateZ', -500, 500).name('Translate Z').onChange(applyTransformToObject);
+				gui.add(effectController, 'translateX', -10, 10).name('Translate X').onChange(applyTransformToObject);
+				gui.add(effectController, 'translateY', -10, 10).name('Translate Y').onChange(applyTransformToObject);
+				gui.add(effectController, 'translateZ', -10, 10).name('Translate Z').onChange(applyTransformToObject);
 				gui.add(effectController, 'rotateZ', -180, 180).name('Rotate Z (°)').onChange(applyTransformToObject);
 			}
 
