@@ -15,7 +15,8 @@
 			{
 				"imports": {
 					"three": "../build/three.module.js",
-					"three/addons/": "../jsm/"
+					"three/addons/": "../jsm/",
+					"morph": "../backend/vertex_morphing.js"
 				}
 			}
 		</script>
@@ -23,6 +24,7 @@
 		<script type="module">
 
 			import * as THREE from 'three';
+			import * as MORPH from 'morph';
 
 			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
@@ -34,6 +36,8 @@
 			let ambientLight, light;
 			let shading, textureCube;
 			const materials = {};
+
+			let transformedMeshes = [];
 
 			init();
 			render();
@@ -119,19 +123,23 @@
 			function setupGui() {
 
 				effectController = {
-					newTess: 15,
-					bottom: true,
-					lid: true,
-					body: true,
-					fitLid: false,
-					nonblinn: false,
 					newShading: 'glossy',
-					model: 'teapot.dae'
+					model: 'teapot.dae',
+					translateX: 0,
+					translateY: 0,
+					translateZ: 0,
+					rotateZ: 0
 				};
 
 				const gui = new GUI();
 				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
 				gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
+
+				// Add transformation controls
+				gui.add(effectController, 'translateX', -500, 500).name('Translate X').onChange(applyTransformToObject);
+				gui.add(effectController, 'translateY', -500, 500).name('Translate Y').onChange(applyTransformToObject);
+				gui.add(effectController, 'translateZ', -500, 500).name('Translate Z').onChange(applyTransformToObject);
+				gui.add(effectController, 'rotateZ', -180, 180).name('Rotate Z (°)').onChange(applyTransformToObject);
 			}
 
 
@@ -168,6 +176,7 @@
 					object.scale.set(300, 300, 300); // Adjust as needed
 
 					// Apply material recursively to all meshes in the loaded scene
+					transformedMeshes = [];
 					object.traverse(function (child) {
 						if (child.isMesh) {
 							// Generate fallback UVs if needed for texture
@@ -192,6 +201,38 @@
 							}
 							child.material = materials[shading];
 						}
+
+						// if (child.isMesh) {
+						// 	const position = child.geometry.attributes.position;
+						// 	const vertices = [];
+						
+						// 	for (let i = 0; i < position.count; i++) {
+						// 		vertices.push(new MORPH.Vec3(
+						// 			position.getX(i),
+						// 			position.getY(i),
+						// 			position.getZ(i)
+						// 		));
+						// 	}
+						
+						// 	// Example: rotate 45 degrees around Z and translate by (10, 20, 30)
+						// 	const angle = Math.PI / 4;
+						// 	const rotationMatrix = [
+						// 		[Math.cos(angle), -Math.sin(angle), 0],
+						// 		[Math.sin(angle), Math.cos(angle), 0],
+						// 		[0, 0, 1]
+						// 	];
+						// 	const translation = new MORPH.Vec3(0, 0, 0);
+						
+						// 	// Apply your transformation
+						// 	MORPH.applyTransformation(vertices, translation, rotationMatrix);
+						
+						// 	// Update the geometry with new vertex positions
+						// 	for (let i = 0; i < position.count; i++) {
+						// 		position.setXYZ(i, vertices[i].x, vertices[i].y, vertices[i].z);
+						// 	}
+						// 	position.needsUpdate = true;
+						// }
+						
 					});
 					
 					scene.add(object);
@@ -200,6 +241,43 @@
 			        	render();
 				});
 
+			}
+
+			function applyTransformToObject() {
+				const angle = THREE.MathUtils.degToRad(effectController.rotateZ);
+				const rotationMatrix = [
+					[Math.cos(angle), -Math.sin(angle), 0],
+					[Math.sin(angle), Math.cos(angle), 0],
+					[0, 0, 1]
+				];
+			
+				const translation = new Vec3(
+					effectController.translateX,
+					effectController.translateY,
+					effectController.translateZ
+				);
+			
+				for (const mesh of transformedMeshes) {
+					const positionAttr = mesh.geometry.attributes.position;
+					const vertices = [];
+			
+					for (let i = 0; i < positionAttr.count; i++) {
+						vertices.push(new Vec3(
+							positionAttr.getX(i),
+							positionAttr.getY(i),
+							positionAttr.getZ(i)
+						));
+					}
+			
+					applyTransformation(vertices, translation, rotationMatrix);
+			
+					for (let i = 0; i < positionAttr.count; i++) {
+						positionAttr.setXYZ(i, vertices[i].x, vertices[i].y, vertices[i].z);
+					}
+					positionAttr.needsUpdate = true;
+				}
+			
+				render(); // Update scene
 			}
 
 		</script>
