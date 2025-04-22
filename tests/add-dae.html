@@ -38,6 +38,7 @@
 			const materials = {};
 
 			let transformedMeshes = [];
+			let originalVertices = new Map();
 
 			init();
 			render();
@@ -177,29 +178,23 @@
 
 					// Apply material recursively to all meshes in the loaded scene
 					transformedMeshes = [];
+					originalVertices.clear();
 					object.traverse(function (child) {
 						if (child.isMesh) {
-							// Generate fallback UVs if needed for texture
-							if (shading === 'textured' && !child.geometry.attributes.uv) {
-								child.geometry.computeBoundingBox();
-								const bbox = child.geometry.boundingBox;
-								const size = new THREE.Vector3();
-								bbox.getSize(size);
-			
-								const uvAttr = [];
-								const posAttr = child.geometry.attributes.position;
-			
-								for (let i = 0; i < posAttr.count; i++) {
-									const x = posAttr.getX(i);
-									const y = posAttr.getY(i);
-									const u = (x - bbox.min.x) / size.x;
-									const v = (y - bbox.min.y) / size.y;
-									uvAttr.push(u, v);
-								}
-			
-								child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
-							}
 							child.material = materials[shading];
+							transformedMeshes.push(child);
+					
+							const positionAttr = child.geometry.attributes.position;
+							const original = [];
+					
+							for (let i = 0; i < positionAttr.count; i++) {
+								original.push(new Vec3(
+									positionAttr.getX(i),
+									positionAttr.getY(i),
+									positionAttr.getZ(i)
+								));
+							}
+							originalVertices.set(child, original);
 						}
 
 						// if (child.isMesh) {
@@ -259,15 +254,11 @@
 			
 				for (const mesh of transformedMeshes) {
 					const positionAttr = mesh.geometry.attributes.position;
-					const vertices = [];
+					const original = originalVertices.get(mesh);
+					if (!original) continue;
 			
-					for (let i = 0; i < positionAttr.count; i++) {
-						vertices.push(new MORPH.Vec3(
-							positionAttr.getX(i),
-							positionAttr.getY(i),
-							positionAttr.getZ(i)
-						));
-					}
+					// Deep copy so we don't modify originals
+					const vertices = original.map(v => new MORPH.Vec3(v.x, v.y, v.z));
 			
 					MORPH.applyTransformation(vertices, translation, rotationMatrix);
 			
@@ -277,7 +268,7 @@
 					positionAttr.needsUpdate = true;
 				}
 			
-				render(); // Update scene
+				render();
 			}
 
 		</script>
