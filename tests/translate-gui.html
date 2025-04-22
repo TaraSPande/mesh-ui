@@ -204,37 +204,6 @@
 							}
 							child.material = materials[shading];
 						}
-
-						// if (child.isMesh) {
-						// 	const position = child.geometry.attributes.position;
-						// 	const vertices = [];
-						
-						// 	for (let i = 0; i < position.count; i++) {
-						// 		vertices.push(new MORPH.Vec3(
-						// 			position.getX(i),
-						// 			position.getY(i),
-						// 			position.getZ(i)
-						// 		));
-						// 	}
-						
-						// 	// Example: rotate 45 degrees around Z and translate by (10, 20, 30)
-						// 	const angle = Math.PI / 4;
-						// 	const rotationMatrix = [
-						// 		[Math.cos(angle), -Math.sin(angle), 0],
-						// 		[Math.sin(angle), Math.cos(angle), 0],
-						// 		[0, 0, 1]
-						// 	];
-						// 	const translation = new MORPH.Vec3(0, 0, 0);
-						
-						// 	// Apply your transformation
-						// 	MORPH.applyTransformation(vertices, translation, rotationMatrix);
-						
-						// 	// Update the geometry with new vertex positions
-						// 	for (let i = 0; i < position.count; i++) {
-						// 		position.setXYZ(i, vertices[i].x, vertices[i].y, vertices[i].z);
-						// 	}
-						// 	position.needsUpdate = true;
-						// }
 						
 					});
 					
@@ -257,7 +226,7 @@
 						const vertices = [];
 					
 						for (let i = 0; i < position.count; i++) {
-							vertices.push(new MORPH.Vec3(
+							vertices.push(new Vec3(
 								position.getX(i),
 								position.getY(i),
 								position.getZ(i)
@@ -271,7 +240,7 @@
 							[Math.sin(angle), Math.cos(angle), 0],
 							[0, 0, 1]
 						];
-						const translation = new MORPH.Vec3(
+						const translation = new Vec3(
 							effectController.translateX,
 							effectController.translateY,
 							effectController.translateZ
