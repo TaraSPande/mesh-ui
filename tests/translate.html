@@ -29,6 +29,7 @@
 			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import { Vec3 } from "../backend/vertex.js";
 
 			let camera, scene, renderer, object;
 			let cameraControls;
@@ -194,7 +195,7 @@
 							const vertices = [];
 						
 							for (let i = 0; i < position.count; i++) {
-								vertices.push(new MORPH.Vec3(
+								vertices.push(new Vec3(
 									position.getX(i),
 									position.getY(i),
 									position.getZ(i)
@@ -208,7 +209,7 @@
 								[Math.sin(angle), Math.cos(angle), 0],
 								[0, 0, 1]
 							];
-							const translation = new MORPH.Vec3(0, 0, 0);
+							const translation = new Vec3(0, 0, 0);
 						
 							// Apply your transformation
 							MORPH.applyTransformation(vertices, translation, rotationMatrix);
