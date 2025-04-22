@@ -1,17 +1,17 @@
-class VertexInterpolation {
+export class VertexInterpolation {
   // Linear interpolation between two vertex positions
   static linearInterpolate(v1, v2, t) {
     return v1.multiply(1.0 - t).add(v2.multiply(t));
   }
 
   // Linear interpolation between two meshes (represented as vertex vectors)
-  static linearInterpolateMeshes(mesh1, mesh2, t) {
+  export static linearInterpolateMeshes(mesh1, mesh2, t) {
     if (mesh1.length !== mesh2.length) {
       // Meshes must have the same number of vertices for simple linear interpolation
       return [];
     }
 
-    const result = new Array(mesh1.length);
+  export const result = new Array(mesh1.length);
     for (let i = 0; i < mesh1.length; i++) {
       result[i] = VertexInterpolation.linearInterpolate(mesh1[i], mesh2[i], t);
     }
@@ -19,7 +19,7 @@ class VertexInterpolation {
   }
 
   // Cubic Bézier curve interpolation for a single vertex
-  static bezierInterpolate(p0, p1, p2, p3, t) {
+  export static bezierInterpolate(p0, p1, p2, p3, t) {
     const t2 = t * t;
     const t3 = t2 * t;
     const mt = 1.0 - t;
@@ -33,7 +33,7 @@ class VertexInterpolation {
   }
 
   // Blend shape interpolation (linear combination of multiple meshes)
-  static blendShapes(meshes, weights) {
+  export static blendShapes(meshes, weights) {
     if (meshes.length === 0 || weights.length !== meshes.length) {
       return [];
     }
@@ -55,7 +55,7 @@ class VertexInterpolation {
   }
 
   // Catmull-Rom spline interpolation for smooth keyframe animation
-  static catmullRomInterpolate(p0, p1, p2, p3, t) {
+  export static catmullRomInterpolate(p0, p1, p2, p3, t) {
     const t2 = t * t;
     const t3 = t2 * t;
 
@@ -67,7 +67,7 @@ class VertexInterpolation {
   }
 
   // Multi-mesh keyframe interpolation using Catmull-Rom
-  static interpolateKeyframes(keyframes, current, t) {
+  export static interpolateKeyframes(keyframes, current, t) {
     if (keyframes.length < 4) {
       return [];
     }
@@ -93,7 +93,7 @@ class VertexInterpolation {
   }
 
   // Barycentric interpolation for a point in a triangle
-  static barycentricInterpolate(p1, p2, p3, point) {
+  export static barycentricInterpolate(p1, p2, p3, point) {
     const normal = p2.subtract(p1).cross(p3.subtract(p1)).unit();
     const projected = point.subtract(normal.multiply(point.subtract(p1).dot(normal)));
 
@@ -119,7 +119,7 @@ class VertexInterpolation {
 }
 
 // Vector3D class to represent 3D points and operations on them
-class Vector3D {
+export class Vector3D {
   constructor(x = 0, y = 0, z = 0) {
     this.x = x;
     this.y = y;
