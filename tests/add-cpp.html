@@ -169,35 +169,35 @@
 				});
 			}
 
-			function checkReadyToMorph() {
-				if (!sourcePositions || !targetPositions) return;
+			// function checkReadyToMorph() {
+			// 	if (!sourcePositions || !targetPositions) return;
 			
-				ICP(sourcePositions, targetPositions, 10); // In-place alignment
-				updateMorph(); // Render first frame
-			}
+			// 	ICP(sourcePositions, targetPositions, 10); // In-place alignment
+			// 	updateMorph(); // Render first frame
+			// }
 
-			function updateMorph() {
-				if (!sourcePositions || !targetPositions) return;
+			// function updateMorph() {
+			// 	if (!sourcePositions || !targetPositions) return;
 			
-				const alpha = effectController.morphFactor;
-				const interpolated = new Float32Array(sourcePositions.length);
+			// 	const alpha = effectController.morphFactor;
+			// 	const interpolated = new Float32Array(sourcePositions.length);
 			
-				for (let i = 0; i < sourcePositions.length; i++) {
-					interpolated[i] = (1 - alpha) * sourcePositions[i] + alpha * targetPositions[i];
-				}
+			// 	for (let i = 0; i < sourcePositions.length; i++) {
+			// 		interpolated[i] = (1 - alpha) * sourcePositions[i] + alpha * targetPositions[i];
+			// 	}
 			
-				if (!morphMesh) {
-					morphMesh = new THREE.Mesh(sourceMesh.clone(), materials[shading]);
-					scene.add(morphMesh);
-				}
+			// 	if (!morphMesh) {
+			// 		morphMesh = new THREE.Mesh(sourceMesh.clone(), materials[shading]);
+			// 		scene.add(morphMesh);
+			// 	}
 			
-				morphMesh.geometry.setAttribute('position', new THREE.BufferAttribute(interpolated, 3));
-				morphMesh.geometry.attributes.position.needsUpdate = true;
+			// 	morphMesh.geometry.setAttribute('position', new THREE.BufferAttribute(interpolated, 3));
+			// 	morphMesh.geometry.attributes.position.needsUpdate = true;
 			
-				smoothMeshPositions(morphMesh.geometry, 0.1); // Optional smoothing
+			// 	smoothMeshPositions(morphMesh.geometry, 0.1); // Optional smoothing
 			
-				render();
-			}
+			// 	render();
+			// }
 
 			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
 			function createNewObject() {
