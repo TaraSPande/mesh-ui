@@ -14,8 +14,8 @@
 		<script type="importmap">
 			{
 				"imports": {
-					"three": "./build/three.module.js",
-					"three/addons/": "./jsm/"
+					"three": "../build/three.module.js",
+					"three/addons/": "../jsm/"
 				}
 			}
 		</script>
@@ -70,13 +70,13 @@
 				cameraControls.addEventListener( 'change', render );
 
 				// TEXTURE MAP
-				const textureMap = new THREE.TextureLoader().load( './textures/uv_grid_opengl.jpg' );
+				const textureMap = new THREE.TextureLoader().load( '../textures/uv_grid_opengl.jpg' );
 				textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
 				textureMap.anisotropy = 16;
 				textureMap.colorSpace = THREE.SRGBColorSpace;
 
 				// REFLECTION MAP
-				const path = './textures/cube/pisa/';
+				const path = '../textures/cube/pisa/';
 				const urls = [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ];
 
 				textureCube = new THREE.CubeTextureLoader().setPath( path ).load( urls );
@@ -153,7 +153,7 @@
 				}
 				
 				const loader = new ColladaLoader();
-				const modelPath = './models/' + effectController.model;
+				const modelPath = '../models/' + effectController.model;
 				
 				loader.load(modelPath, function (collada) {
 					object = collada.scene;
