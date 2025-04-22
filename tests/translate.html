@@ -208,10 +208,10 @@
 								[Math.sin(angle), Math.cos(angle), 0],
 								[0, 0, 1]
 							];
-							const translation = new Vec3(10, 20, 30);
+							const translation = new MORPH.Vec3(10, 20, 30);
 						
 							// Apply your transformation
-							applyTransformation(vertices, translation, rotationMatrix);
+							MORPH.applyTransformation(vertices, translation, rotationMatrix);
 						
 							// Update the geometry with new vertex positions
 							for (let i = 0; i < position.count; i++) {
