@@ -1,4 +1,4 @@
-class Vec3 {
+export class Vec3 {
 	constructor(x = 0, y = 0, z = 0) {
 		this.x = x;
 		this.y = y;
@@ -39,7 +39,7 @@ class Vec3 {
 	}
 }
 
-const MeshDeformation = {
+export const MeshDeformation = {
 	bezierInterpolate(start, end, t) {
 		const result = [];
 		for (let i = 0; i < start.length; i++) {
@@ -67,7 +67,7 @@ const MeshDeformation = {
 	}
 };
 
-function calculateCentroid(points) {
+export function calculateCentroid(points) {
 	let centroid = new Vec3();
 	for (const p of points) {
 		centroid = centroid.add(p);
@@ -75,7 +75,7 @@ function calculateCentroid(points) {
 	return centroid.mul(1 / points.length);
 }
 
-function findClosestPoints(source, target) {
+export function findClosestPoints(source, target) {
 	const closest = [];
 	for (let i = 0; i < source.length; i++) {
 		let minDist = Infinity;
@@ -92,7 +92,7 @@ function findClosestPoints(source, target) {
 	return closest;
 }
 
-function applyTransformation(source, translation, rotationMatrix) {
+export function applyTransformation(source, translation, rotationMatrix) {
 	for (let i = 0; i < source.length; i++) {
 		const v = source[i];
 		const xNew = rotationMatrix[0][0] * v.x + rotationMatrix[0][1] * v.y + rotationMatrix[0][2] * v.z;
@@ -102,7 +102,7 @@ function applyTransformation(source, translation, rotationMatrix) {
 	}
 }
 
-function ICP(source, target, maxIterations = 10) {
+export function ICP(source, target, maxIterations = 10) {
 	for (let iter = 0; iter < maxIterations; iter++) {
 		const closestPoints = findClosestPoints(source, target);
 		const sourceCentroid = calculateCentroid(source);
