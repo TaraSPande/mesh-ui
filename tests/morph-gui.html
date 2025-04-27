@@ -41,6 +41,10 @@
 			let transformedMeshes = [];
 			let originalVertices = new Map();
 
+			let startVertices = [];
+			let endVertices = [];
+			let morphMesh;
+
 			init();
 			render();
 
@@ -126,22 +130,29 @@
 
 				effectController = {
 					newShading: 'glossy',
-					model: 'teapot.dae',
-					translateX: 0,
-					translateY: 0,
-					translateZ: 0,
-					rotateZ: 0
+					// model: 'teapot.dae',
+					// translateX: 0,
+					// translateY: 0,
+					// translateZ: 0,
+					// rotateZ: 0
+					startModel: 'teapot.dae',
+    					endModel: 'beetle.dae',
+    					morphAmount: 0.0 // Slider between 0 and 1
 				};
 
 				const gui = new GUI();
 				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
-				gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
+				// gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
 
+				gui.add(effectController, 'startModel', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Start Model').onChange(loadModels);
+				gui.add(effectController, 'endModel', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('End Model').onChange(loadModels);
+				gui.add(effectController, 'morphAmount', 0.0, 1.0, 0.01).name('Morph').onChange(updateMorph);
+				
 				// Add transformation controls
-				gui.add(effectController, 'translateX', -10, 10).name('Translate X').onChange(applyTransformToObject);
-				gui.add(effectController, 'translateY', -10, 10).name('Translate Y').onChange(applyTransformToObject);
-				gui.add(effectController, 'translateZ', -10, 10).name('Translate Z').onChange(applyTransformToObject);
-				gui.add(effectController, 'rotateZ', -180, 180).name('Rotate Z (°)').onChange(applyTransformToObject);
+				// gui.add(effectController, 'translateX', -10, 10).name('Translate X').onChange(applyTransformToObject);
+				// gui.add(effectController, 'translateY', -10, 10).name('Translate Y').onChange(applyTransformToObject);
+				// gui.add(effectController, 'translateZ', -10, 10).name('Translate Z').onChange(applyTransformToObject);
+				// gui.add(effectController, 'rotateZ', -180, 180).name('Rotate Z (°)').onChange(applyTransformToObject);
 			}
 
 
@@ -259,6 +270,94 @@
 
 				// scene.add(object);
 				render();
+			}
+
+			function loadModels() {
+			    if (morphMesh) {
+			        scene.remove(morphMesh);
+			    }
+			
+			    const loader = new ColladaLoader();
+			    const startPath = '../models/' + effectController.startModel;
+			    const endPath = '../models/' + effectController.endModel;
+			
+			    Promise.all([
+			        new Promise(resolve => loader.load(startPath, collada => resolve(collada.scene))),
+			        new Promise(resolve => loader.load(endPath, collada => resolve(collada.scene)))
+			    ]).then(([startScene, endScene]) => {
+			        
+			        // Assume one mesh per model for simplicity
+			        const startMesh = findFirstMesh(startScene);
+			        const endMesh = findFirstMesh(endScene);
+			
+			        if (!startMesh || !endMesh) {
+			            console.error("Could not find meshes inside the loaded scenes!");
+			            return;
+			        }
+			
+			        const startPos = startMesh.geometry.attributes.position;
+			        const endPos = endMesh.geometry.attributes.position;
+			
+			        if (startPos.count !== endPos.count) {
+			            console.error("Start and end models have different vertex counts!");
+			            return;
+			        }
+			
+			        startVertices = [];
+			        endVertices = [];
+			
+			        for (let i = 0; i < startPos.count; i++) {
+			            startVertices.push(new Vec3(
+			                startPos.getX(i),
+			                startPos.getY(i),
+			                startPos.getZ(i)
+			            ));
+			            endVertices.push(new Vec3(
+			                endPos.getX(i),
+			                endPos.getY(i),
+			                endPos.getZ(i)
+			            ));
+			        }
+			
+			        // Create morphMesh
+			        const geometry = startMesh.geometry.clone();
+			        const material = materials[effectController.newShading];
+			
+			        morphMesh = new THREE.Mesh(geometry, material);
+			        morphMesh.rotation.x = Math.PI / 2;
+			        morphMesh.rotation.y = Math.PI;
+			        morphMesh.scale.set(300, 300, 300);
+			
+			        scene.add(morphMesh);
+			
+			        updateMorph();
+			    });
+			}
+
+			function findFirstMesh(object) {
+			    let mesh = null;
+			    object.traverse(child => {
+			        if (child.isMesh && !mesh) {
+			            mesh = child;
+			        }
+			    });
+			    return mesh;
+			}
+
+			function updateMorph() {
+			    if (!morphMesh) return;
+			
+			    const position = morphMesh.geometry.attributes.position;
+			    const t = effectController.morphAmount;
+			
+			    for (let i = 0; i < position.count; i++) {
+			        const x = (1 - t) * startVertices[i].x + t * endVertices[i].x;
+			        const y = (1 - t) * startVertices[i].y + t * endVertices[i].y;
+			        const z = (1 - t) * startVertices[i].z + t * endVertices[i].z;
+			        position.setXYZ(i, x, y, z);
+			    }
+			    position.needsUpdate = true;
+			    render();
 			}
 
 		</script>
