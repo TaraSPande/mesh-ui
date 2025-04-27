@@ -125,7 +125,7 @@
 			function setupGui() {
 
 				effectController = {
-					// newShading: 'glossy',
+					newShading: 'glossy',
 					// model: 'teapot.dae'
 					startModel: 'teapot.dae',
 				    	endModel: 'altered.dae',
@@ -133,7 +133,7 @@
 				};
 
 				const gui = new GUI();
-				// gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
+				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
 				// gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'beetle.dae', 'cow.dae', 'altered.dae', 'altered2.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'beetle.dae', 'cow.dae', 'altered.dae', 'altered2.dae' ]).name('End Model').onChange(loadModels);
@@ -148,7 +148,7 @@
 					createNewObject();
 				}
 
-				skybox is rendered separately, so that it is always behind the teapot.
+				// skybox is rendered separately, so that it is always behind the teapot.
 				if ( shading === 'reflective' ) {
 					scene.background = textureCube;
 				} else {
@@ -240,7 +240,7 @@
 			
 			        if (startPos.count !== endPos.count) {
 			            console.error("Start and end models have different vertex counts!");
-			            return;
+			            //return;
 			        }
 			
 			        startVertices = [];
