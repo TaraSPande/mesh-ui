@@ -239,8 +239,9 @@
 			        const endPos = endMesh.geometry.attributes.position;
 			
 			        if (!startPos || !endPos || startPos.count !== endPos.count) {
-			            console.error("Models don't have matching vertex counts!");
-			            return;
+			            console.error(startPos.count);
+				    console.error(endPos.count);
+			            //return;
 			        }
 			
 			        startVertices = [];
