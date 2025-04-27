@@ -264,7 +264,7 @@
 			        geometry.attributes.position = geometry.attributes.position.clone(); // important!
 			        geometry.attributes.position.needsUpdate = true;
 			
-			        // const material = materials[effectController.newShading];
+			        const material = materials[effectController.newShading];
 			
 			        morphMesh = new THREE.Mesh(geometry, material);
 			        morphMesh.rotation.x = Math.PI / 2;
