@@ -32,9 +32,9 @@
 			let camera, scene, renderer, object;
 			let cameraControls;
 			let effectController;
-			let ambientLight, light;
-			let shading, textureCube;
-			const materials = {};
+			// let ambientLight, light;
+			// let shading, textureCube;
+			// const materials = {};
 
 			let startVertices = [];
 			let endVertices = [];
@@ -56,10 +56,10 @@
 				camera.position.set( - 600, 550, 1300 );
 
 				// LIGHTS
-				ambientLight = new THREE.AmbientLight( 0x7c7c7c, 2.0 );
+				// ambientLight = new THREE.AmbientLight( 0x7c7c7c, 2.0 );
 
-				light = new THREE.DirectionalLight( 0xFFFFFF, 2.0 );
-				light.position.set( 0.32, 0.39, 0.7 );
+				// light = new THREE.DirectionalLight( 0xFFFFFF, 2.0 );
+				// light.position.set( 0.32, 0.39, 0.7 );
 
 				// RENDERER
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -75,30 +75,30 @@
 				cameraControls.addEventListener( 'change', render );
 
 				// TEXTURE MAP
-				const textureMap = new THREE.TextureLoader().load( '../textures/uv_grid_opengl.jpg' );
-				textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
-				textureMap.anisotropy = 16;
-				textureMap.colorSpace = THREE.SRGBColorSpace;
+				// const textureMap = new THREE.TextureLoader().load( '../textures/uv_grid_opengl.jpg' );
+				// textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
+				// textureMap.anisotropy = 16;
+				// textureMap.colorSpace = THREE.SRGBColorSpace;
 
 				// REFLECTION MAP
-				const path = '../textures/cube/pisa/';
-				const urls = [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ];
+				// const path = '../textures/cube/pisa/';
+				// const urls = [ 'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png' ];
 
-				textureCube = new THREE.CubeTextureLoader().setPath( path ).load( urls );
+				// textureCube = new THREE.CubeTextureLoader().setPath( path ).load( urls );
 
-				materials[ 'wireframe' ] = new THREE.MeshBasicMaterial( { wireframe: true } );
-				materials[ 'flat' ] = new THREE.MeshPhongMaterial( { specular: 0x000000, flatShading: true, side: THREE.DoubleSide } );
-				materials[ 'smooth' ] = new THREE.MeshLambertMaterial( { side: THREE.DoubleSide } );
-				materials[ 'glossy' ] = new THREE.MeshPhongMaterial( { color: 0xc0c0c0, specular: 0x404040, shininess: 300, side: THREE.DoubleSide } );
-				materials[ 'textured' ] = new THREE.MeshPhongMaterial( { map: textureMap, side: THREE.DoubleSide } );
-				materials[ 'reflective' ] = new THREE.MeshPhongMaterial( { envMap: textureCube, side: THREE.DoubleSide } );
+				// materials[ 'wireframe' ] = new THREE.MeshBasicMaterial( { wireframe: true } );
+				// materials[ 'flat' ] = new THREE.MeshPhongMaterial( { specular: 0x000000, flatShading: true, side: THREE.DoubleSide } );
+				// materials[ 'smooth' ] = new THREE.MeshLambertMaterial( { side: THREE.DoubleSide } );
+				// materials[ 'glossy' ] = new THREE.MeshPhongMaterial( { color: 0xc0c0c0, specular: 0x404040, shininess: 300, side: THREE.DoubleSide } );
+				// materials[ 'textured' ] = new THREE.MeshPhongMaterial( { map: textureMap, side: THREE.DoubleSide } );
+				// materials[ 'reflective' ] = new THREE.MeshPhongMaterial( { envMap: textureCube, side: THREE.DoubleSide } );
 
 				// scene itself
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xAAAAAA );
 
-				scene.add( ambientLight );
-				scene.add( light );
+				// scene.add( ambientLight );
+				// scene.add( light );
 
 				// GUI
 				setupGui();
@@ -125,7 +125,7 @@
 			function setupGui() {
 
 				effectController = {
-					newShading: 'glossy',
+					// newShading: 'glossy',
 					// model: 'teapot.dae'
 					startModel: 'teapot.dae',
 				    	endModel: 'altered.dae',
@@ -133,7 +133,7 @@
 				};
 
 				const gui = new GUI();
-				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
+				// gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
 				// gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'beetle.dae', 'cow.dae', 'altered.dae', 'altered2.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'beetle.dae', 'cow.dae', 'altered.dae', 'altered2.dae' ]).name('End Model').onChange(loadModels);
@@ -143,70 +143,70 @@
 
 			function render() {
 
-				if (effectController.newShading !== shading ) {
-					shading = effectController.newShading;
-					createNewObject();
-				}
+				// if (effectController.newShading !== shading ) {
+				// 	shading = effectController.newShading;
+				// 	createNewObject();
+				// }
 
 				// skybox is rendered separately, so that it is always behind the teapot.
-				if ( shading === 'reflective' ) {
-					scene.background = textureCube;
-				} else {
-					scene.background = null;
-				}
+				// if ( shading === 'reflective' ) {
+				// 	scene.background = textureCube;
+				// } else {
+					// scene.background = null;
+				// }
 				renderer.render( scene, camera );
 			}
 
 			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
-			function createNewObject() {
+			// function createNewObject() {
 
-				if (object) {
-				    scene.remove(object);
-				}
+			// 	if (object) {
+			// 	    scene.remove(object);
+			// 	}
 				
-				const loader = new ColladaLoader();
-				const modelPath = '../models/' + effectController.startModel;
+			// 	const loader = new ColladaLoader();
+			// 	const modelPath = '../models/' + effectController.startModel;
 				
-				loader.load(modelPath, function (collada) {
-					object = collada.scene;
-					object.rotation.x = Math.PI / 2; // Y-up loaded orientation
-					object.rotation.y = Math.PI;     // Optional: Rotate if needed
-					object.scale.set(300, 300, 300); // Adjust as needed
+			// 	loader.load(modelPath, function (collada) {
+			// 		object = collada.scene;
+			// 		object.rotation.x = Math.PI / 2; // Y-up loaded orientation
+			// 		object.rotation.y = Math.PI;     // Optional: Rotate if needed
+			// 		object.scale.set(300, 300, 300); // Adjust as needed
 
-					// Apply material recursively to all meshes in the loaded scene
-					object.traverse(function (child) {
-						if (child.isMesh) {
-							// Generate fallback UVs if needed for texture
-							if (shading === 'textured' && !child.geometry.attributes.uv) {
-								child.geometry.computeBoundingBox();
-								const bbox = child.geometry.boundingBox;
-								const size = new THREE.Vector3();
-								bbox.getSize(size);
+			// 		// Apply material recursively to all meshes in the loaded scene
+			// 		object.traverse(function (child) {
+			// 			if (child.isMesh) {
+			// 				// Generate fallback UVs if needed for texture
+			// 				if (shading === 'textured' && !child.geometry.attributes.uv) {
+			// 					child.geometry.computeBoundingBox();
+			// 					const bbox = child.geometry.boundingBox;
+			// 					const size = new THREE.Vector3();
+			// 					bbox.getSize(size);
 			
-								const uvAttr = [];
-								const posAttr = child.geometry.attributes.position;
+			// 					const uvAttr = [];
+			// 					const posAttr = child.geometry.attributes.position;
 			
-								for (let i = 0; i < posAttr.count; i++) {
-									const x = posAttr.getX(i);
-									const y = posAttr.getY(i);
-									const u = (x - bbox.min.x) / size.x;
-									const v = (y - bbox.min.y) / size.y;
-									uvAttr.push(u, v);
-								}
+			// 					for (let i = 0; i < posAttr.count; i++) {
+			// 						const x = posAttr.getX(i);
+			// 						const y = posAttr.getY(i);
+			// 						const u = (x - bbox.min.x) / size.x;
+			// 						const v = (y - bbox.min.y) / size.y;
+			// 						uvAttr.push(u, v);
+			// 					}
 			
-								child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
-							}
-							child.material = materials[shading];
-						}
-					});
+			// 					child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
+			// 				}
+			// 				child.material = materials[shading];
+			// 			}
+			// 		});
 					
-					scene.add(object);
+			// 		scene.add(object);
 
-					// Force re-render now that teapot is in the scene
-			        	render();
-				});
+			// 		// Force re-render now that teapot is in the scene
+			//         	render();
+			// 	});
 
-			}
+			// }
 
 			function loadModels() {
 			    if (morphMesh) {
@@ -238,10 +238,9 @@
 			        const startPos = startMesh.geometry.attributes.position;
 			        const endPos = endMesh.geometry.attributes.position;
 			
-			        if (!startPos || !endPos || startPos.count !== endPos.count) {
-			            console.error(startPos.count);
-				    console.error(endPos.count);
-			            //return;
+			        if (startPos.count !== endPos.count) {
+			            console.error("Start and end models have different vertex counts!");
+			            return;
 			        }
 			
 			        startVertices = [];
@@ -265,7 +264,7 @@
 			        geometry.attributes.position = geometry.attributes.position.clone(); // important!
 			        geometry.attributes.position.needsUpdate = true;
 			
-			        const material = materials[effectController.newShading];
+			        // const material = materials[effectController.newShading];
 			
 			        morphMesh = new THREE.Mesh(geometry, material);
 			        morphMesh.rotation.x = Math.PI / 2;
