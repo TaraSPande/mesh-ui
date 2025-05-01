@@ -174,31 +174,31 @@
 					object.rotation.y = Math.PI;     // Optional: Rotate if needed
 					object.scale.set(300, 300, 300); // Adjust as needed
 
-			// 		// Apply material recursively to all meshes in the loaded scene
-			// 		object.traverse(function (child) {
-			// 			if (child.isMesh) {
-			// 				// Generate fallback UVs if needed for texture
-			// 				if (shading === 'textured' && !child.geometry.attributes.uv) {
-			// 					child.geometry.computeBoundingBox();
-			// 					const bbox = child.geometry.boundingBox;
-			// 					const size = new THREE.Vector3();
-			// 					bbox.getSize(size);
+					// Apply material recursively to all meshes in the loaded scene
+					object.traverse(function (child) {
+						if (child.isMesh) {
+							// Generate fallback UVs if needed for texture
+							if (shading === 'textured' && !child.geometry.attributes.uv) {
+								child.geometry.computeBoundingBox();
+								const bbox = child.geometry.boundingBox;
+								const size = new THREE.Vector3();
+								bbox.getSize(size);
 			
-			// 					const uvAttr = [];
-			// 					const posAttr = child.geometry.attributes.position;
+								const uvAttr = [];
+								const posAttr = child.geometry.attributes.position;
 			
-			// 					for (let i = 0; i < posAttr.count; i++) {
-			// 						const x = posAttr.getX(i);
-			// 						const y = posAttr.getY(i);
-			// 						const u = (x - bbox.min.x) / size.x;
-			// 						const v = (y - bbox.min.y) / size.y;
-			// 						uvAttr.push(u, v);
-			// 					}
+								for (let i = 0; i < posAttr.count; i++) {
+									const x = posAttr.getX(i);
+									const y = posAttr.getY(i);
+									const u = (x - bbox.min.x) / size.x;
+									const v = (y - bbox.min.y) / size.y;
+									uvAttr.push(u, v);
+								}
 			
-			// 					child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
-			// 				}
-			// 				child.material = materials[shading];
-			// 			}
+								child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
+							}
+							child.material = materials[shading];
+						}
 					});
 					
 					scene.add(object);
