@@ -219,7 +219,9 @@
 			        morphMesh.rotation.y = Math.PI;
 			        morphMesh.scale.set(300, 300, 300);
 			
-			        //scene.add(morphMesh);
+			        console.log("Before adding morphMesh:", scene.children);
+				scene.add(morphMesh);
+				console.log("After adding morphMesh:", scene.children);
 			
 			        updateMorph(); // Immediately morph to t=0
 			        render();
