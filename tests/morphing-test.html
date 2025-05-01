@@ -173,6 +173,12 @@
 			function loadModels() {
 				if (morphMesh) {
 					scene.remove(morphMesh);
+					morphMesh = null;
+				}
+				
+				if (object) {
+					scene.remove(object);
+					object = null;
 				}
 
 				const loader = new ColladaLoader();
