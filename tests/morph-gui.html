@@ -29,7 +29,7 @@
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 			import { Vec3 } from "../backend/vertex.js";
 
-			let camera, scene, renderer;
+			let camera, scene, renderer, object;
 			let cameraControls;
 			let effectController;
 			let ambientLight, light;
@@ -212,6 +212,12 @@
 			        scene.remove(morphMesh);
 			        morphMesh = null;
 			    }
+
+			    // Remove initial object (teapot) if present
+			    if (object) {
+			        scene.remove(object);
+			        object = null;
+			    }
 				
 			    const loader = new ColladaLoader();
 			    const startPath = '../models/' + effectController.startModel;
@@ -226,8 +232,8 @@
 			        })
 			    ]).then(([startScene, endScene]) => {
 
-				scene.remove(startScene);
-        			scene.remove(endScene);
+				// scene.remove(startScene);
+    //     			scene.remove(endScene);
 			
 			        const startMesh = findFirstMesh(startScene);
 			        const endMesh = findFirstMesh(endScene);
@@ -237,22 +243,22 @@
 			            return;
 			        }
 
-				    startScene.traverse(child => {
-				            if (child.isMesh && child !== startMesh) {
-				                child.geometry.dispose();
-				                if (child.material.map) child.material.map.dispose();
-				                child.material.dispose();
-				                scene.remove(child);
-				            }
-				        });
-				        endScene.traverse(child => {
-				            if (child.isMesh && child !== endMesh) {
-				                child.geometry.dispose();
-				                if (child.material.map) child.material.map.dispose();
-				                child.material.dispose();
-				                scene.remove(child);
-				            }
-				        });
+				    // startScene.traverse(child => {
+				    //         if (child.isMesh && child !== startMesh) {
+				    //             child.geometry.dispose();
+				    //             if (child.material.map) child.material.map.dispose();
+				    //             child.material.dispose();
+				    //             scene.remove(child);
+				    //         }
+				    //     });
+				    //     endScene.traverse(child => {
+				    //         if (child.isMesh && child !== endMesh) {
+				    //             child.geometry.dispose();
+				    //             if (child.material.map) child.material.map.dispose();
+				    //             child.material.dispose();
+				    //             scene.remove(child);
+				    //         }
+				    //     });
 			
 			        const startPos = startMesh.geometry.attributes.position;
 			        const endPos = endMesh.geometry.attributes.position;
