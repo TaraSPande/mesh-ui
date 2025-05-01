@@ -145,7 +145,7 @@
 
 				if (effectController.newShading !== shading ) {
 					shading = effectController.newShading;
-					//createNewObject();
+					createNewObject();
 					loadModels();
 				}
 
@@ -159,11 +159,11 @@
 			}
 
 			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
-			// function createNewObject() {
+			function createNewObject() {
 
-			// 	if (object) {
-			// 	    scene.remove(object);
-			// 	}
+				if (object) {
+				    scene.remove(object);
+				}
 				
 			// 	const loader = new ColladaLoader();
 			// 	const modelPath = '../models/' + effectController.startModel;
@@ -207,7 +207,7 @@
 			//         	render();
 			// 	});
 
-			// }
+			}
 
 			function loadModels() {
 			    // Remove existing morph mesh if present
