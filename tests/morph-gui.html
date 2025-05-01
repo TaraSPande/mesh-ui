@@ -161,6 +161,11 @@
 			        scene.remove(morphMesh);
 			        morphMesh = null;
 			    }
+
+			    scene.children = scene.children.filter(obj =>
+				obj.type === 'AmbientLight' || obj.type === 'DirectionalLight'
+			    );
+			    morphMesh = null;
 						
 			    const loader = new ColladaLoader();
 			    const startPath = '../models/' + effectController.startModel;
