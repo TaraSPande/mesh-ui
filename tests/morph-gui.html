@@ -165,14 +165,14 @@
 				    scene.remove(object);
 				}
 				
-			// 	const loader = new ColladaLoader();
-			// 	const modelPath = '../models/' + effectController.startModel;
+				const loader = new ColladaLoader();
+				const modelPath = '../models/' + effectController.startModel;
 				
-			// 	loader.load(modelPath, function (collada) {
-			// 		object = collada.scene;
-			// 		object.rotation.x = Math.PI / 2; // Y-up loaded orientation
-			// 		object.rotation.y = Math.PI;     // Optional: Rotate if needed
-			// 		object.scale.set(300, 300, 300); // Adjust as needed
+				loader.load(modelPath, function (collada) {
+					object = collada.scene;
+					object.rotation.x = Math.PI / 2; // Y-up loaded orientation
+					object.rotation.y = Math.PI;     // Optional: Rotate if needed
+					object.scale.set(300, 300, 300); // Adjust as needed
 
 			// 		// Apply material recursively to all meshes in the loaded scene
 			// 		object.traverse(function (child) {
@@ -199,13 +199,13 @@
 			// 				}
 			// 				child.material = materials[shading];
 			// 			}
-			// 		});
+					});
 					
-			// 		scene.add(object);
+					scene.add(object);
 
-			// 		// Force re-render now that teapot is in the scene
-			//         	render();
-			// 	});
+					// Force re-render now that teapot is in the scene
+			        	render();
+				});
 
 			}
 
