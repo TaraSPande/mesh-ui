@@ -29,7 +29,7 @@
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 			import { Vec3 } from "../backend/vertex.js";
 
-			let camera, scene, renderer;
+			let camera, scene, renderer, object;
 			let cameraControls;
 			let effectController;
 			let ambientLight, light;
@@ -102,7 +102,6 @@
 
 				// GUI
 				setupGui();
-				console.log("earliest adding morphMesh:", scene.children);
 				loadModels();
 
 			}
@@ -144,7 +143,7 @@
 
 				if (effectController.newShading !== shading ) {
 					shading = effectController.newShading;
-					loadModels();
+					createNewObject();
 				}
 
 				// skybox is rendered separately, so that it is always behind the teapot.
@@ -156,28 +155,77 @@
 				renderer.render( scene, camera );
 			}
 
+			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
+			function createNewObject() {
+
+				if (object) {
+				    scene.remove(object);
+				}
+				
+				const loader = new ColladaLoader();
+				const modelPath = '../models/' + effectController.startModel;
+				
+				loader.load(modelPath, function (collada) {
+					object = collada.scene;
+					object.rotation.x = Math.PI / 2; // Y-up loaded orientation
+					object.rotation.y = Math.PI;     // Optional: Rotate if needed
+					object.scale.set(300, 300, 300); // Adjust as needed
+
+					// Apply material recursively to all meshes in the loaded scene
+					object.traverse(function (child) {
+						if (child.isMesh) {
+							// Generate fallback UVs if needed for texture
+							if (shading === 'textured' && !child.geometry.attributes.uv) {
+								child.geometry.computeBoundingBox();
+								const bbox = child.geometry.boundingBox;
+								const size = new THREE.Vector3();
+								bbox.getSize(size);
+			
+								const uvAttr = [];
+								const posAttr = child.geometry.attributes.position;
+			
+								for (let i = 0; i < posAttr.count; i++) {
+									const x = posAttr.getX(i);
+									const y = posAttr.getY(i);
+									const u = (x - bbox.min.x) / size.x;
+									const v = (y - bbox.min.y) / size.y;
+									uvAttr.push(u, v);
+								}
+			
+								child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
+							}
+							child.material = materials[shading];
+						}
+					});
+					
+					scene.add(object);
+
+					// Force re-render now that teapot is in the scene
+			        	render();
+				});
+
+			}
+
 			function loadModels() {
 			    // Remove existing morph mesh if present
 			    if (morphMesh) {
 			        scene.remove(morphMesh);
 			        morphMesh = null;
 			    }
-
-			    scene.children = scene.children.filter(obj =>
-				obj.type === 'AmbientLight' || obj.type === 'DirectionalLight'
-			    );
-			    morphMesh = null;
-						
+			
+			    // Remove initial object (teapot) if present
+			    if (object) {
+			        scene.remove(object);
+			        object = null;
+			    }
+			
 			    const loader = new ColladaLoader();
 			    const startPath = '../models/' + effectController.startModel;
 			    const endPath = '../models/' + effectController.endModel;
 			
 			    Promise.all([
 			        new Promise((resolve, reject) => {
-			            loader.load(startPath, collada => {
-					    const mesh = findFirstMesh(collada.scene);
-					    resolve(mesh.clone());
-					}, undefined, reject);
+			            loader.load(startPath, collada => resolve(collada.scene), undefined, reject);
 			        }),
 			        new Promise((resolve, reject) => {
 			            loader.load(endPath, collada => resolve(collada.scene), undefined, reject);
@@ -228,9 +276,7 @@
 			        morphMesh.rotation.y = Math.PI;
 			        morphMesh.scale.set(300, 300, 300);
 			
-			        console.log("Before adding morphMesh:", scene.children);
-				scene.add(morphMesh);
-				console.log("After adding morphMesh:", scene.children);
+			        scene.add(morphMesh);
 			
 			        updateMorph(); // Immediately morph to t=0
 			        render();
