@@ -28,6 +28,7 @@
 			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
 			import { Vec3 } from "../backend/vertex.js";
 
 			let camera, scene, renderer;
@@ -42,6 +43,11 @@
 			let morphMesh;
 
 			let correspondence = [];
+
+			let sdfResolution = 32;
+			let startSDF, endSDF;
+			let marchingCubes;
+			
 
 			init();
 			render();
@@ -123,7 +129,7 @@
 					startModel: 'teapot.dae',
 				    	endModel: 'cow.dae',
 				    	morphAmount: 0, // Slider between 0 and 1
-					matchingMethod: 'original'
+					// matchingMethod: 'original'
 				};
 
 				const gui = new GUI();
@@ -131,7 +137,7 @@
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
-				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'extremes', 'uni-ex', 'dust']).name('Algorithm').onChange(loadModels);
+				// gui.add(effectController, 'matchingMethod', ['original', 'unique', 'extremes', 'uni-ex', 'dust']).name('Algorithm').onChange(loadModels);
 			}
 
 
@@ -152,86 +158,23 @@
 			}
 
 			function loadModels() {
-			    // Remove existing morph mesh if present
-			    if (morphMesh) {
-			        scene.remove(morphMesh);
-			        morphMesh = null;
+			    // Simulate loading SDF volumes (you'd replace this with real data)
+			    startSDF = generateSDF(effectController.startModel);
+			    endSDF = generateSDF(effectController.endModel);
+			
+			    // Create the Marching Cubes object
+			    if (marchingCubes) {
+			        scene.remove(marchingCubes);
 			    }
 			
-			    const loader = new ColladaLoader();
-			    const startPath = '../models/' + effectController.startModel;
-			    const endPath = '../models/' + effectController.endModel;
+			    marchingCubes = new MarchingCubes(sdfResolution, materials[effectController.newShading], true, true);
+			    marchingCubes.position.set(0, 0, 0);
+			    marchingCubes.scale.set(300, 300, 300);
 			
-			    Promise.all([
-			        new Promise((resolve, reject) => {
-			            loader.load(startPath, collada => resolve(collada.scene), undefined, reject);
-			        }),
-			        new Promise((resolve, reject) => {
-			            loader.load(endPath, collada => resolve(collada.scene), undefined, reject);
-			        })
-			    ]).then(([startScene, endScene]) => {
+			    scene.add(marchingCubes);
 			
-			        const startMesh = findFirstMesh(startScene);
-			        const endMesh = findFirstMesh(endScene);
-			
-			        if (!startMesh || !endMesh) {
-			            console.error("Could not find meshes inside the loaded scenes!");
-			            return;
-			        }
-			
-			        const startPos = startMesh.geometry.attributes.position;
-			        const endPos = endMesh.geometry.attributes.position;
-			
-			        if (startPos.count !== endPos.count) {
-			            console.error("Start and end models have different vertex counts!");
-			            //return;
-			        }
-			
-			        startVertices = [];
-			        endVertices = [];
-			
-			        for (let i = 0; i < startPos.count; i++) {
-			            startVertices.push(new Vec3(
-			                startPos.getX(i),
-			                startPos.getY(i),
-			                startPos.getZ(i)
-			            ));
-			            endVertices.push(new Vec3(
-			                endPos.getX(i),
-			                endPos.getY(i),
-			                endPos.getZ(i)
-			            ));
-			        }
-
-				if (effectController.matchingMethod === 'unique') {
-				    correspondence = OPT.findClosestPointsUnique(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'extremes') {
-				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'uni-ex') {
-				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
-				} else {
-				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
-				}
-							
-			        // Create a new morph mesh
-			        const geometry = startMesh.geometry.clone();
-			        geometry.attributes.position = geometry.attributes.position.clone(); // important!
-			        geometry.attributes.position.needsUpdate = true;
-			
-			        const material = materials[effectController.newShading];
-			
-			        morphMesh = new THREE.Mesh(geometry, material);
-			        morphMesh.rotation.x = Math.PI / 2;
-			        morphMesh.rotation.y = Math.PI;
-			        morphMesh.scale.set(300, 300, 300);
-			
-			        scene.add(morphMesh);
-			
-			        updateMorph(); // Immediately morph to t=0
-			        render();
-			    }).catch(err => {
-			        console.error("Error loading models:", err);
-			    });
+			    updateMorph();
+			    render();
 			}
 
 			function findFirstMesh(object) {
@@ -245,29 +188,54 @@
 			}
 
 			function updateMorph() {
-			    if (!morphMesh) return;
+			    if (!marchingCubes) return;
 			
-			    const position = morphMesh.geometry.attributes.position;
 			    const t = effectController.morphAmount;
-
-			    if (effectController.matchingMethod === 'dust') {
-				    for (let i = 0; i < position.count; i++) {
-				        const x = (1 - t) * startVertices[i].x + t * endVertices[i].x;
-				        const y = (1 - t) * startVertices[i].y + t * endVertices[i].y;
-				        const z = (1 - t) * startVertices[i].z + t * endVertices[i].z;
-				        position.setXYZ(i, x, y, z);
-				    }
-			    } else {
-				    for (let i = 0; i < position.count; i++) {
-					const j = correspondence[i]; // index in endVertices
-					const x = (1 - t) * startVertices[i].x + t * endVertices[j].x;
-					const y = (1 - t) * startVertices[i].y + t * endVertices[j].y;
-					const z = (1 - t) * startVertices[i].z + t * endVertices[j].z;
-					position.setXYZ(i, x, y, z);
-				    }
+			    const interpolatedSDF = interpolateSDF(startSDF, endSDF, t);
+			
+			    // Copy interpolated SDF to Marching Cubes field
+			    const field = marchingCubes.field;
+			    for (let i = 0; i < field.length; i++) {
+			        field[i] = interpolatedSDF[i];
 			    }
-			    position.needsUpdate = true;
+			
+			    marchingCubes.isolation = 0; // isosurface level
+			    marchingCubes.enableUvs = false;
+			    marchingCubes.enableColors = false;
+			    marchingCubes.init(Math.pow(sdfResolution, 3));
+			
+			    marchingCubes.reset();
+			    marchingCubes.render();
 			    render();
+			}
+
+			function generateSDF(modelName) {
+			    // Placeholder: create a sphere or random shape in a 3D grid
+			    const size = sdfResolution;
+			    const sdf = new Float32Array(size * size * size);
+			    const center = size / 2;
+			
+			    for (let z = 0; z < size; z++) {
+			        for (let y = 0; y < size; y++) {
+			            for (let x = 0; x < size; x++) {
+			                const dx = x - center;
+			                const dy = y - center;
+			                const dz = z - center;
+			                const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+			                const idx = x + y * size + z * size * size;
+			                sdf[idx] = dist - (modelName === 'teapot.dae' ? 10 : 8); // crude mock
+			            }
+			        }
+			    }
+			    return sdf;
+			}
+			
+			function interpolateSDF(sdf1, sdf2, t) {
+			    const out = new Float32Array(sdf1.length);
+			    for (let i = 0; i < sdf1.length; i++) {
+			        out[i] = (1 - t) * sdf1[i] + t * sdf2[i];
+			    }
+			    return out;
 			}
 
 		</script>
