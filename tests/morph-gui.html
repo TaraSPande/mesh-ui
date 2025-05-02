@@ -174,7 +174,10 @@
 			
 			    Promise.all([
 			        new Promise((resolve, reject) => {
-			            loader.load(startPath, collada => resolve(collada.scene), undefined, reject);
+			            loader.load(startPath, collada => {
+					    const mesh = findFirstMesh(collada.scene);
+					    resolve(mesh.clone());
+					}, undefined, reject);
 			        }),
 			        new Promise((resolve, reject) => {
 			            loader.load(endPath, collada => resolve(collada.scene), undefined, reject);
