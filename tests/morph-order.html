@@ -137,7 +137,7 @@
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
-				gui.add(effectController, 'matchingMethod', ['original', 'unique']).name('Match Method').onChange(loadModels);
+				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'biased']).name('Match Method').onChange(loadModels);
 			}
 
 
@@ -212,6 +212,8 @@
 				//correspondence = findClosestPoints(startVertices, endVertices);
 				if (effectController.matchingMethod === 'unique') {
 				    correspondence = findClosestPointsUnique(startVertices, endVertices);
+				} else if (effectController.matchingMethod === 'biased') {
+				    correspondence = findClosestPointsBiasExtremes(startVertices, endVertices);
 				} else {
 				    correspondence = findClosestPointsOriginal(startVertices, endVertices);
 				}
@@ -305,6 +307,55 @@
 			        correspondence.push(closestIdx);
 				used.add(closestIdx);
 			    }
+			    return correspondence;
+			}
+
+			function findClosestPointsBiasExtremes(source, target) {
+			    const correspondence = [];
+			
+			    // Step 1: Compute center of target
+			    const center = new Vec3(0, 0, 0);
+			    for (let v of target) {
+			        center.x += v.x;
+			        center.y += v.y;
+			        center.z += v.z;
+			    }
+			    center.x /= target.length;
+			    center.y /= target.length;
+			    center.z /= target.length;
+			
+			    // Step 2: Precompute "extremeness" (distance from center)
+			    const targetScores = target.map(v => {
+			        const dx = v.x - center.x;
+			        const dy = v.y - center.y;
+			        const dz = v.z - center.z;
+			        return Math.sqrt(dx*dx + dy*dy + dz*dz);
+			    });
+			
+			    const maxScore = Math.max(...targetScores);
+			
+			    // Step 3: Match each source point to best-scoring target
+			    for (let i = 0; i < source.length; i++) {
+			        let bestIdx = 0;
+			        let bestScore = Infinity;
+			        for (let j = 0; j < target.length; j++) {
+			            const dx = source[i].x - target[j].x;
+			            const dy = source[i].y - target[j].y;
+			            const dz = source[i].z - target[j].z;
+			            const dist = dx * dx + dy * dy + dz * dz;
+			
+			            // Penalize matching to center-ish points
+			            const extremeness = targetScores[j] / maxScore; // [0, 1]
+			            const biasedDist = dist / (0.1 + extremeness);  // Boost far points
+			
+			            if (biasedDist < bestScore) {
+			                bestScore = biasedDist;
+			                bestIdx = j;
+			            }
+			        }
+			        correspondence.push(bestIdx);
+			    }
+			
 			    return correspondence;
 			}
 
