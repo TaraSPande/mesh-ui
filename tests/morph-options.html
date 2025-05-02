@@ -204,13 +204,13 @@
 			        }
 
 				if (effectController.matchingMethod === 'unique') {
-				    correspondence = findClosestPointsUnique(startVertices, endVertices);
+				    correspondence = OPT.findClosestPointsUnique(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'extremes') {
-				    correspondence = findClosestPointsBiasExtremes(startVertices, endVertices);
+				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'uni-ex') {
-				    correspondence = findClosestPointsBiasedUnique(startVertices, endVertices);
+				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
 				} else {
-				    correspondence = findClosestPointsOriginal(startVertices, endVertices);
+				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
 				}
 							
 			        // Create a new morph mesh
@@ -226,8 +226,8 @@
 			        morphMesh.scale.set(300, 300, 300);
 			
 			        scene.add(morphMesh);
-
-				updateMorph(); // Immediately morph to t=0
+			
+			        updateMorph(); // Immediately morph to t=0
 			        render();
 			    }).catch(err => {
 			        console.error("Error loading models:", err);
@@ -244,45 +244,30 @@
 			    return mesh;
 			}
 
-			function updateMorphCorr() {
-			    if (!morphMesh) return;
-			
-			    const position = morphMesh.geometry.attributes.position;
-			    const t = effectController.morphAmount;
-			
-			    for (let i = 0; i < position.count; i++) {
-				    const j = correspondence[i]; // index in endVertices
-				    const x = (1 - t) * startVertices[i].x + t * endVertices[j].x;
-				    const y = (1 - t) * startVertices[i].y + t * endVertices[j].y;
-				    const z = (1 - t) * startVertices[i].z + t * endVertices[j].z;
-				    position.setXYZ(i, x, y, z);
-				}
-			    position.needsUpdate = true;
-			    render();
-			}
-
-			function updateMorphOG() {
-			    if (!morphMesh) return;
-			
-			    const position = morphMesh.geometry.attributes.position;
-			    const t = effectController.morphAmount;
-			
-			    for (let i = 0; i < position.count; i++) {
-			        const x = (1 - t) * startVertices[i].x + t * endVertices[i].x;
-			        const y = (1 - t) * startVertices[i].y + t * endVertices[i].y;
-			        const z = (1 - t) * startVertices[i].z + t * endVertices[i].z;
-			        position.setXYZ(i, x, y, z);
-			    }
-			    position.needsUpdate = true;
-			    render();
-			}
-
 			function updateMorph() {
+			    if (!morphMesh) return;
+			
+			    const position = morphMesh.geometry.attributes.position;
+			    const t = effectController.morphAmount;
+
 			    if (effectController.matchingMethod === 'dust') {
-				    updateMorphOG();
-			    else {
-				    updateMorphCorr();
+				    for (let i = 0; i < position.count; i++) {
+				        const x = (1 - t) * startVertices[i].x + t * endVertices[i].x;
+				        const y = (1 - t) * startVertices[i].y + t * endVertices[i].y;
+				        const z = (1 - t) * startVertices[i].z + t * endVertices[i].z;
+				        position.setXYZ(i, x, y, z);
+				    }
+			    } else {
+				    for (let i = 0; i < position.count; i++) {
+					const j = correspondence[i]; // index in endVertices
+					const x = (1 - t) * startVertices[i].x + t * endVertices[j].x;
+					const y = (1 - t) * startVertices[i].y + t * endVertices[j].y;
+					const z = (1 - t) * startVertices[i].z + t * endVertices[j].z;
+					position.setXYZ(i, x, y, z);
+				    }
 			    }
+			    position.needsUpdate = true;
+			    render();
 			}
 
 		</script>
