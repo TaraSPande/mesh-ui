@@ -1,3 +1,5 @@
+import { Vec3 } from './vertex.js';
+
 export function findClosestPointsOriginal(source, target) {
     const correspondence = [];
     for (let i = 0; i < source.length; i++) {
