@@ -128,7 +128,8 @@
 					newShading: 'glossy',
 					startModel: 'teapot.dae',
 				    	endModel: 'cow.dae',
-				    	morphAmount: 0 // Slider between 0 and 1
+				    	morphAmount: 0, // Slider between 0 and 1
+					matchingMethod: 'original'
 				};
 
 				const gui = new GUI();
@@ -136,6 +137,7 @@
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
+				gui.add(effectController, 'matchingMethod', ['original', 'unique']).name('Match Method').onChange(loadModels);
 			}
 
 
@@ -207,8 +209,13 @@
 			            ));
 			        }
 
-				correspondence = findClosestPoints(startVertices, endVertices);
-			
+				//correspondence = findClosestPoints(startVertices, endVertices);
+				if (effectController.matchingMethod === 'unique') {
+				    correspondence = findClosestPointsUnique(startVertices, endVertices);
+				} else {
+				    correspondence = findClosestPointsOriginal(startVertices, endVertices);
+				}
+							
 			        // Create a new morph mesh
 			        const geometry = startMesh.geometry.clone();
 			        geometry.attributes.position = geometry.attributes.position.clone(); // important!
@@ -257,27 +264,27 @@
 			    render();
 			}
 
-			// function findClosestPoints(source, target) {
-			//     const correspondence = [];
-			//     for (let i = 0; i < source.length; i++) {
-			//         let minDist = Infinity;
-			//         let closestIdx = 0;
-			//         for (let j = 0; j < target.length; j++) {
-			//             const dx = source[i].x - target[j].x;
-			//             const dy = source[i].y - target[j].y;
-			//             const dz = source[i].z - target[j].z;
-			//             const dist = dx * dx + dy * dy + dz * dz;
-			//             if (dist < minDist) {
-			//                 minDist = dist;
-			//                 closestIdx = j;
-			//             }
-			//         }
-			//         correspondence.push(closestIdx);
-			//     }
-			//     return correspondence;
-			// }
+			function findClosestPointsOriginal(source, target) {
+			    const correspondence = [];
+			    for (let i = 0; i < source.length; i++) {
+			        let minDist = Infinity;
+			        let closestIdx = 0;
+			        for (let j = 0; j < target.length; j++) {
+			            const dx = source[i].x - target[j].x;
+			            const dy = source[i].y - target[j].y;
+			            const dz = source[i].z - target[j].z;
+			            const dist = dx * dx + dy * dy + dz * dz;
+			            if (dist < minDist) {
+			                minDist = dist;
+			                closestIdx = j;
+			            }
+			        }
+			        correspondence.push(closestIdx);
+			    }
+			    return correspondence;
+			}
 
-			function findClosestPoints(source, target) {
+			function findClosestPointsUnqiue(source, target) {
 			    const correspondence = [];
 			    const used = new Set();
 				
