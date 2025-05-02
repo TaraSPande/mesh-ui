@@ -77,10 +77,10 @@
 				cameraControls.addEventListener( 'change', render );
 
 				// TEXTURE MAP
-				const textureMap = new THREE.TextureLoader().load( '../textures/uv_grid_opengl.jpg' );
-				textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
-				textureMap.anisotropy = 16;
-				textureMap.colorSpace = THREE.SRGBColorSpace;
+				// const textureMap = new THREE.TextureLoader().load( '../textures/uv_grid_opengl.jpg' );
+				// textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
+				// textureMap.anisotropy = 16;
+				// textureMap.colorSpace = THREE.SRGBColorSpace;
 
 				// REFLECTION MAP
 				const path = '../textures/cube/pisa/';
@@ -92,7 +92,7 @@
 				materials[ 'flat' ] = new THREE.MeshPhongMaterial( { specular: 0x000000, flatShading: true, side: THREE.DoubleSide } );
 				materials[ 'smooth' ] = new THREE.MeshLambertMaterial( { side: THREE.DoubleSide } );
 				materials[ 'glossy' ] = new THREE.MeshPhongMaterial( { color: 0xc0c0c0, specular: 0x404040, shininess: 300, side: THREE.DoubleSide } );
-				materials[ 'textured' ] = new THREE.MeshPhongMaterial( { map: textureMap, side: THREE.DoubleSide } );
+				// materials[ 'textured' ] = new THREE.MeshPhongMaterial( { map: textureMap, side: THREE.DoubleSide } );
 				materials[ 'reflective' ] = new THREE.MeshPhongMaterial( { envMap: textureCube, side: THREE.DoubleSide } );
 
 				// scene itself
@@ -133,11 +133,11 @@
 				};
 
 				const gui = new GUI();
-				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
+				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'reflective' ] ).name( 'Shading' ).onChange( render );
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
-				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'biased', 'biased-unique']).name('Match Method').onChange(loadModels);
+				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'extremes', 'uni-ex']).name('Match Method').onChange(loadModels);
 			}
 
 
@@ -212,9 +212,9 @@
 				//correspondence = findClosestPoints(startVertices, endVertices);
 				if (effectController.matchingMethod === 'unique') {
 				    correspondence = findClosestPointsUnique(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'biased') {
+				} else if (effectController.matchingMethod === 'extremes') {
 				    correspondence = findClosestPointsBiasExtremes(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'biased-unique') {
+				} else if (effectController.matchingMethod === 'uni-ex') {
 				    correspondence = findClosestPointsBiasedUnique(startVertices, endVertices);
 				} else {
 				    correspondence = findClosestPointsOriginal(startVertices, endVertices);
