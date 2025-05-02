@@ -40,6 +40,8 @@
 			let endVertices = [];
 			let morphMesh;
 
+			let correspondence = [];
+
 			init();
 			render();
 
@@ -204,6 +206,24 @@
 			                endPos.getZ(i)
 			            ));
 			        }
+
+				// Build closest point mapping from start to end
+				const correspondence = [];
+				for (let i = 0; i < startVertices.length; i++) {
+				    let minDist = Infinity;
+				    let bestJ = -1;
+				    for (let j = 0; j < endVertices.length; j++) {
+				        const dx = startVertices[i].x - endVertices[j].x;
+				        const dy = startVertices[i].y - endVertices[j].y;
+				        const dz = startVertices[i].z - endVertices[j].z;
+				        const dist = dx * dx + dy * dy + dz * dz;
+				        if (dist < minDist) {
+				            minDist = dist;
+				            bestJ = j;
+				        }
+				    }
+				    correspondence.push(bestJ);
+				}
 			
 			        // Create a new morph mesh
 			        const geometry = startMesh.geometry.clone();
@@ -243,11 +263,12 @@
 			    const t = effectController.morphAmount;
 			
 			    for (let i = 0; i < position.count; i++) {
-			        const x = (1 - t) * startVertices[i].x + t * endVertices[i].x;
-			        const y = (1 - t) * startVertices[i].y + t * endVertices[i].y;
-			        const z = (1 - t) * startVertices[i].z + t * endVertices[i].z;
-			        position.setXYZ(i, x, y, z);
-			    }
+				    const j = correspondence[i]; // index in endVertices
+				    const x = (1 - t) * startVertices[i].x + t * endVertices[j].x;
+				    const y = (1 - t) * startVertices[i].y + t * endVertices[j].y;
+				    const z = (1 - t) * startVertices[i].z + t * endVertices[j].z;
+				    position.setXYZ(i, x, y, z);
+				}
 			    position.needsUpdate = true;
 			    render();
 			}
