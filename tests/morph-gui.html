@@ -126,15 +126,17 @@
 
 				effectController = {
 					newShading: 'glossy',
+					// model: 'teapot.dae'
 					startModel: 'teapot.dae',
-				    	endModel: 'cow.dae',
+				    	endModel: 'altered.dae',
 				    	morphAmount: 0 // Slider between 0 and 1
 				};
 
 				const gui = new GUI();
 				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
-				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
-				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
+				// gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
+				gui.add(effectController, 'startModel', [ 'teapot.dae', 'altered.dae', 'altered2.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
+				gui.add(effectController, 'endModel', [ 'teapot.dae', 'altered.dae', 'altered2.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
 			}
 
