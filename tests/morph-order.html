@@ -137,7 +137,7 @@
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
-				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'biased']).name('Match Method').onChange(loadModels);
+				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'biased', 'biased-unique']).name('Match Method').onChange(loadModels);
 			}
 
 
@@ -213,7 +213,9 @@
 				if (effectController.matchingMethod === 'unique') {
 				    correspondence = findClosestPointsUnique(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'biased') {
-				    correspondence = findClosestPointsBiasExtremes(startVertices, endVertices);
+				    correspondence = findClosestPointsBiased(startVertices, endVertices);
+				} else if (effectController.matchingMethod === 'biased-unique') {
+				    correspondence = findClosestPointsBiasedUnique(startVertices, endVertices);
 				} else {
 				    correspondence = findClosestPointsOriginal(startVertices, endVertices);
 				}
@@ -354,6 +356,65 @@
 			            }
 			        }
 			        correspondence.push(bestIdx);
+			    }
+			
+			    return correspondence;
+			}
+
+			function findClosestPointsBiasedUnique(source, target) {
+			    const correspondence = [];
+			
+			    // Step 1: Compute center of target mesh
+			    const center = new Vec3(0, 0, 0);
+			    for (const v of target) {
+			        center.x += v.x;
+			        center.y += v.y;
+			        center.z += v.z;
+			    }
+			    center.x /= target.length;
+			    center.y /= target.length;
+			    center.z /= target.length;
+			
+			    // Step 2: Compute "extremeness" = distance from center
+			    const targetScores = target.map(v => {
+			        const dx = v.x - center.x;
+			        const dy = v.y - center.y;
+			        const dz = v.z - center.z;
+			        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+			    });
+			
+			    const maxScore = Math.max(...targetScores);
+			
+			    // Step 3: For each source point, find best available (unused) target point
+			    const used = new Set();
+			    for (let i = 0; i < source.length; i++) {
+			        let bestIdx = -1;
+			        let bestScore = Infinity;
+			
+			        for (let j = 0; j < target.length; j++) {
+			            if (used.has(j)) continue;
+			
+			            const dx = source[i].x - target[j].x;
+			            const dy = source[i].y - target[j].y;
+			            const dz = source[i].z - target[j].z;
+			            const dist = dx * dx + dy * dy + dz * dz;
+			
+			            const extremeness = targetScores[j] / (maxScore || 1); // normalize to [0,1]
+			            const biasedDist = dist / (0.1 + extremeness); // lower bias means preference for extreme
+			
+			            if (biasedDist < bestScore) {
+			                bestScore = biasedDist;
+			                bestIdx = j;
+			            }
+			        }
+			
+			        if (bestIdx !== -1) {
+			            correspondence.push(bestIdx);
+			            used.add(bestIdx);
+			        } else {
+			            // fallback if we run out of unused points
+			            correspondence.push(0);
+			        }
 			    }
 			
 			    return correspondence;
