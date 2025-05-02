@@ -207,23 +207,7 @@
 			            ));
 			        }
 
-				// Build closest point mapping from start to end
-				const correspondence = [];
-				for (let i = 0; i < startVertices.length; i++) {
-				    let minDist = Infinity;
-				    let bestJ = -1;
-				    for (let j = 0; j < endVertices.length; j++) {
-				        const dx = startVertices[i].x - endVertices[j].x;
-				        const dy = startVertices[i].y - endVertices[j].y;
-				        const dz = startVertices[i].z - endVertices[j].z;
-				        const dist = dx * dx + dy * dy + dz * dz;
-				        if (dist < minDist) {
-				            minDist = dist;
-				            bestJ = j;
-				        }
-				    }
-				    correspondence.push(bestJ);
-				}
+				correspondence = findClosestPoints(startVertices, endVertices);
 			
 			        // Create a new morph mesh
 			        const geometry = startMesh.geometry.clone();
@@ -271,6 +255,26 @@
 				}
 			    position.needsUpdate = true;
 			    render();
+			}
+
+			function findClosestPoints(source, target) {
+			    const correspondence = [];
+			    for (let i = 0; i < source.length; i++) {
+			        let minDist = Infinity;
+			        let closestIdx = 0;
+			        for (let j = 0; j < target.length; j++) {
+			            const dx = source[i].x - target[j].x;
+			            const dy = source[i].y - target[j].y;
+			            const dz = source[i].z - target[j].z;
+			            const dist = dx * dx + dy * dy + dz * dz;
+			            if (dist < minDist) {
+			                minDist = dist;
+			                closestIdx = j;
+			            }
+			        }
+			        correspondence.push(closestIdx);
+			    }
+			    return correspondence;
 			}
 
 		</script>
