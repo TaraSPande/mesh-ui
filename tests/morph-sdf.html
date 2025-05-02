@@ -30,6 +30,7 @@
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 			import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
 			import { Vec3 } from "../backend/vertex.js";
+			import { generateSDF } from '@pmndrs/mesh-to-sdf';
 
 			let camera, scene, renderer;
 			let cameraControls;
@@ -47,6 +48,9 @@
 			let sdfResolution = 32;
 			let startSDF, endSDF;
 			let marchingCubes;
+
+			let startReady = false;
+			let endReady = false;
 			
 
 			init();
@@ -158,23 +162,17 @@
 			}
 
 			function loadModels() {
-			    // Simulate loading SDF volumes (you'd replace this with real data)
-			    startSDF = generateSDF(effectController.startModel);
-			    endSDF = generateSDF(effectController.endModel);
+				startReady = false;
+				endReady = false;
+				scene.remove(marchingCubes);
 			
-			    // Create the Marching Cubes object
-			    if (marchingCubes) {
-			        scene.remove(marchingCubes);
-			    }
+				marchingCubes = new MarchingCubes(sdfResolution, materials[effectController.newShading], true, true);
+				marchingCubes.position.set(0, 0, 0);
+				marchingCubes.scale.set(300, 300, 300);
+				scene.add(marchingCubes);
 			
-			    marchingCubes = new MarchingCubes(sdfResolution, materials[effectController.newShading], true, true);
-			    marchingCubes.position.set(0, 0, 0);
-			    marchingCubes.scale.set(300, 300, 300);
-			
-			    scene.add(marchingCubes);
-			
-			    updateMorph();
-			    render();
+				generateSDF(effectController.startModel);
+				generateSDF(effectController.endModel);
 			}
 
 			function findFirstMesh(object) {
@@ -210,24 +208,39 @@
 			}
 
 			function generateSDF(modelName) {
-			    // Placeholder: create a sphere or random shape in a 3D grid
-			    const size = sdfResolution;
-			    const sdf = new Float32Array(size * size * size);
-			    const center = size / 2;
+				const loader = new ColladaLoader();
 			
-			    for (let z = 0; z < size; z++) {
-			        for (let y = 0; y < size; y++) {
-			            for (let x = 0; x < size; x++) {
-			                const dx = x - center;
-			                const dy = y - center;
-			                const dz = z - center;
-			                const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-			                const idx = x + y * size + z * size * size;
-			                sdf[idx] = dist - (modelName === 'teapot.dae' ? 10 : 8); // crude mock
-			            }
-			        }
-			    }
-			    return sdf;
+				loader.load('../models/' + modelName, async (collada) => {
+					const mesh = findFirstMesh(collada.scene);
+					if (!mesh) {
+						console.error("No mesh found in", modelName);
+						return;
+					}
+			
+					// Center and scale mesh to unit box
+					mesh.geometry.computeBoundingBox();
+					const bounds = mesh.geometry.boundingBox;
+					const size = new THREE.Vector3();
+					bounds.getSize(size);
+					const scale = 1.0 / Math.max(size.x, size.y, size.z);
+					mesh.scale.setScalar(scale);
+			
+					// Generate SDF from the mesh
+					const { data } = await generateSDF(mesh, {
+						resolution: sdfResolution,
+						bounds: 1.0, // fits mesh into unit cube
+						surfaceDistance: 0.1,
+					});
+			
+					if (modelName === effectController.startModel) {
+						startSDF = data;
+						startReady = true;
+					} else if (modelName === effectController.endModel) {
+						endSDF = data;
+						endReady = true;
+					}
+					checkBothReady();
+				});
 			}
 			
 			function interpolateSDF(sdf1, sdf2, t) {
@@ -236,6 +249,13 @@
 			        out[i] = (1 - t) * sdf1[i] + t * sdf2[i];
 			    }
 			    return out;
+			}
+
+			function checkBothReady() {
+				if (startReady && endReady) {
+					updateMorph();
+					render();
+				}
 			}
 
 		</script>
