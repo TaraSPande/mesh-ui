@@ -257,59 +257,25 @@
 			    render();
 			}
 
-			// function findClosestPoints(source, target) {
-			//     const correspondence = [];
-			//     for (let i = 0; i < source.length; i++) {
-			//         let minDist = Infinity;
-			//         let closestIdx = 0;
-			//         for (let j = 0; j < target.length; j++) {
-			//             const dx = source[i].x - target[j].x;
-			//             const dy = source[i].y - target[j].y;
-			//             const dz = source[i].z - target[j].z;
-			//             const dist = dx * dx + dy * dy + dz * dz;
-			//             if (dist < minDist) {
-			//                 minDist = dist;
-			//                 closestIdx = j;
-			//             }
-			//         }
-			//         correspondence.push(closestIdx);
-			//     }
-			//     return correspondence;
-			// }
 			function findClosestPoints(source, target) {
 			    const correspondence = [];
-			    const used = new Set();
-			
 			    for (let i = 0; i < source.length; i++) {
 			        let minDist = Infinity;
-			        let closestIdx = -1;
-			
+			        let closestIdx = 0;
 			        for (let j = 0; j < target.length; j++) {
-			            if (used.has(j)) continue;
-			
 			            const dx = source[i].x - target[j].x;
 			            const dy = source[i].y - target[j].y;
 			            const dz = source[i].z - target[j].z;
 			            const dist = dx * dx + dy * dy + dz * dz;
-			
 			            if (dist < minDist) {
 			                minDist = dist;
 			                closestIdx = j;
 			            }
 			        }
-			
-			        // Fallback if all targets used
-			        if (closestIdx === -1) {
-			            closestIdx = 0;
-			        }
-			
-			        used.add(closestIdx);
 			        correspondence.push(closestIdx);
 			    }
-			
 			    return correspondence;
 			}
-
 
 		</script>
 
