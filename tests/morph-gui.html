@@ -29,7 +29,7 @@
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 			import { Vec3 } from "../backend/vertex.js";
 
-			let camera, scene, renderer, object;
+			let camera, scene, renderer;
 			let cameraControls;
 			let effectController;
 			let ambientLight, light;
@@ -126,17 +126,15 @@
 
 				effectController = {
 					newShading: 'glossy',
-					// model: 'teapot.dae'
 					startModel: 'teapot.dae',
-				    	endModel: 'altered.dae',
+				    	endModel: 'cow.dae',
 				    	morphAmount: 0 // Slider between 0 and 1
 				};
 
 				const gui = new GUI();
 				gui.add( effectController, 'newShading', [ 'wireframe', 'flat', 'smooth', 'glossy', 'textured', 'reflective' ] ).name( 'Shading' ).onChange( render );
-				// gui.add(effectController, 'model', [ 'teapot.dae', 'beetle.dae', 'cow.dae' ]).name('Model').onChange(() => {createNewObject();});
-				gui.add(effectController, 'startModel', [ 'teapot.dae', 'altered.dae', 'altered2.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
-				gui.add(effectController, 'endModel', [ 'teapot.dae', 'altered.dae', 'altered2.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
+				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
+				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
 			}
 
@@ -145,7 +143,7 @@
 
 				if (effectController.newShading !== shading ) {
 					shading = effectController.newShading;
-					createNewObject();
+					loadModels();
 				}
 
 				// skybox is rendered separately, so that it is always behind the teapot.
@@ -158,55 +156,55 @@
 			}
 
 			// Whenever the teapot changes, the scene is rebuilt from scratch (not much to it).
-			function createNewObject() {
+			// function createNewObject() {
 
-				if (object) {
-				    scene.remove(object);
-				}
+			// 	if (object) {
+			// 	    scene.remove(object);
+			// 	}
 				
-				const loader = new ColladaLoader();
-				const modelPath = '../models/' + effectController.startModel;
+			// 	const loader = new ColladaLoader();
+			// 	const modelPath = '../models/' + effectController.startModel;
 				
-				loader.load(modelPath, function (collada) {
-					object = collada.scene;
-					object.rotation.x = Math.PI / 2; // Y-up loaded orientation
-					object.rotation.y = Math.PI;     // Optional: Rotate if needed
-					object.scale.set(300, 300, 300); // Adjust as needed
+			// 	loader.load(modelPath, function (collada) {
+			// 		object = collada.scene;
+			// 		object.rotation.x = Math.PI / 2; // Y-up loaded orientation
+			// 		object.rotation.y = Math.PI;     // Optional: Rotate if needed
+			// 		object.scale.set(300, 300, 300); // Adjust as needed
 
-					// Apply material recursively to all meshes in the loaded scene
-					object.traverse(function (child) {
-						if (child.isMesh) {
-							// Generate fallback UVs if needed for texture
-							if (shading === 'textured' && !child.geometry.attributes.uv) {
-								child.geometry.computeBoundingBox();
-								const bbox = child.geometry.boundingBox;
-								const size = new THREE.Vector3();
-								bbox.getSize(size);
+			// 		// Apply material recursively to all meshes in the loaded scene
+			// 		object.traverse(function (child) {
+			// 			if (child.isMesh) {
+			// 				// Generate fallback UVs if needed for texture
+			// 				if (shading === 'textured' && !child.geometry.attributes.uv) {
+			// 					child.geometry.computeBoundingBox();
+			// 					const bbox = child.geometry.boundingBox;
+			// 					const size = new THREE.Vector3();
+			// 					bbox.getSize(size);
 			
-								const uvAttr = [];
-								const posAttr = child.geometry.attributes.position;
+			// 					const uvAttr = [];
+			// 					const posAttr = child.geometry.attributes.position;
 			
-								for (let i = 0; i < posAttr.count; i++) {
-									const x = posAttr.getX(i);
-									const y = posAttr.getY(i);
-									const u = (x - bbox.min.x) / size.x;
-									const v = (y - bbox.min.y) / size.y;
-									uvAttr.push(u, v);
-								}
+			// 					for (let i = 0; i < posAttr.count; i++) {
+			// 						const x = posAttr.getX(i);
+			// 						const y = posAttr.getY(i);
+			// 						const u = (x - bbox.min.x) / size.x;
+			// 						const v = (y - bbox.min.y) / size.y;
+			// 						uvAttr.push(u, v);
+			// 					}
 			
-								child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
-							}
-							child.material = materials[shading];
-						}
-					});
+			// 					child.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvAttr, 2));
+			// 				}
+			// 				child.material = materials[shading];
+			// 			}
+			// 		});
 					
-					scene.add(object);
+			// 		scene.add(object);
 
-					// Force re-render now that teapot is in the scene
-			        	render();
-				});
+			// 		// Force re-render now that teapot is in the scene
+			//         	render();
+			// 	});
 
-			}
+			// }
 
 			function loadModels() {
 			    // Remove existing morph mesh if present
@@ -216,10 +214,10 @@
 			    }
 			
 			    // Remove initial object (teapot) if present
-			    if (object) {
-			        scene.remove(object);
-			        object = null;
-			    }
+			    // if (object) {
+			    //     scene.remove(object);
+			    //     object = null;
+			    // }
 			
 			    const loader = new ColladaLoader();
 			    const startPath = '../models/' + effectController.startModel;
