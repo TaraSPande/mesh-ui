@@ -202,6 +202,16 @@
 			                endPos.getZ(i)
 			            ));
 			        }
+
+				if (effectController.matchingMethod === 'original') {
+				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
+				} else if (effectController.matchingMethod === 'unique') {
+				    correspondence = OPT.findClosestPointsUnique(startVertices, endVertices);
+				} else if (effectController.matchingMethod === 'extremes') {
+				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
+				} else if (effectController.matchingMethod === 'uni-ex') {
+				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
+				}
 							
 			        // Create a new morph mesh
 			        const geometry = startMesh.geometry.clone();
@@ -217,21 +227,7 @@
 			
 			        scene.add(morphMesh);
 
-				if (effectController.matchingMethod === 'unique') {
-				    correspondence = OPT.findClosestPointsUnique(startVertices, endVertices);
-				    updateMorphCorr();
-				} else if (effectController.matchingMethod === 'extremes') {
-				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
-				    updateMorphCorr();
-				} else if (effectController.matchingMethod === 'uni-ex') {
-				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
-				    updateMorphCorr();
-				} else if (effectController.matchingMethod === 'original') {
-				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
-				    updateMorphCorr();
-				} else { //dust
-				    updateMorph(); // Immediately morph to t=0
-				}
+				updateMorph(); // Immediately morph to t=0
 			        render();
 			    }).catch(err => {
 			        console.error("Error loading models:", err);
@@ -265,7 +261,7 @@
 			    render();
 			}
 
-			function updateMorph() {
+			function updateMorphOG() {
 			    if (!morphMesh) return;
 			
 			    const position = morphMesh.geometry.attributes.position;
@@ -279,6 +275,14 @@
 			    }
 			    position.needsUpdate = true;
 			    render();
+			}
+
+			function updateMorph() {
+			    if (effectController.matchingMethod === 'dust') {
+				    updateMorphOG();
+			    else {
+				    updateMorphCorr();
+			    }
 			}
 
 		</script>
