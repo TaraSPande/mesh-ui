@@ -213,7 +213,7 @@
 				if (effectController.matchingMethod === 'unique') {
 				    correspondence = findClosestPointsUnique(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'biased') {
-				    correspondence = findClosestPointsBiased(startVertices, endVertices);
+				    correspondence = findClosestPointsBiasExtremes(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'biased-unique') {
 				    correspondence = findClosestPointsBiasedUnique(startVertices, endVertices);
 				} else {
