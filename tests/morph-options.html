@@ -202,16 +202,6 @@
 			                endPos.getZ(i)
 			            ));
 			        }
-
-				if (effectController.matchingMethod === 'unique') {
-				    correspondence = OPT.findClosestPointsUnique(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'extremes') {
-				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'uni-ex') {
-				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'original') {
-				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
-				}
 							
 			        // Create a new morph mesh
 			        const geometry = startMesh.geometry.clone();
@@ -226,11 +216,21 @@
 			        morphMesh.scale.set(300, 300, 300);
 			
 			        scene.add(morphMesh);
-			
-				if (effectController.matchingMethod === 'dust') {
+
+				if (effectController.matchingMethod === 'unique') {
+				    correspondence = OPT.findClosestPointsUnique(startVertices, endVertices);
+				    updateMorphCorr();
+				} else if (effectController.matchingMethod === 'extremes') {
+				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
+				    updateMorphCorr();
+				} else if (effectController.matchingMethod === 'uni-ex') {
+				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
+				    updateMorphCorr();
+				} else if (effectController.matchingMethod === 'original') {
+				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
+				    updateMorphCorr();
+				} else { //dust
 				    updateMorph(); // Immediately morph to t=0
-				} else {
-				    updateMorphCorr(); // Immediately morph to t=0
 				}
 			        render();
 			    }).catch(err => {
