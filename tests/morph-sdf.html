@@ -171,8 +171,9 @@
 				marchingCubes.scale.set(300, 300, 300);
 				scene.add(marchingCubes);
 			
-				generateSDF(effectController.startModel);
-				generateSDF(effectController.endModel);
+				// Use the renamed function
+				generateSDFMock(effectController.startModel);
+				generateSDFMock(effectController.endModel);
 			}
 
 			function findFirstMesh(object) {
@@ -207,7 +208,7 @@
 			    render();
 			}
 
-			function generateSDF(modelName) {
+			function generateSDFMock(modelName) {
 				const loader = new ColladaLoader();
 			
 				loader.load('../models/' + modelName, async (collada) => {
