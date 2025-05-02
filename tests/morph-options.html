@@ -203,14 +203,14 @@
 			            ));
 			        }
 
-				if (effectController.matchingMethod === 'original') {
-				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
-				} else if (effectController.matchingMethod === 'unique') {
-				    correspondence = OPT.findClosestPointsUnique(startVertices, endVertices);
+				if (effectController.matchingMethod === 'unique') {
+				    correspondence = findClosestPointsUnique(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'extremes') {
-				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
+				    correspondence = findClosestPointsBiasExtremes(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'uni-ex') {
-				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
+				    correspondence = findClosestPointsBiasedUnique(startVertices, endVertices);
+				} else {
+				    correspondence = findClosestPointsOriginal(startVertices, endVertices);
 				}
 							
 			        // Create a new morph mesh
