@@ -131,7 +131,7 @@
 				gui.add(effectController, 'startModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('Start Model').onChange(loadModels);
 				gui.add(effectController, 'endModel', [ 'teapot.dae', 'cow.dae', 'beetle.dae', 'bean.dae', 'beast.dae', 'quadball.dae' ]).name('End Model').onChange(loadModels);
 				gui.add(effectController, 'morphAmount', 0, 1).name('Morph').onChange(updateMorph);
-				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'extremes', 'uni-ex']).name('Match Method').onChange(loadModels);
+				gui.add(effectController, 'matchingMethod', ['original', 'unique', 'extremes', 'uni-ex', 'dust']).name('Match Method').onChange(loadModels);
 			}
 
 
@@ -209,7 +209,7 @@
 				    correspondence = OPT.findClosestPointsBiasExtremes(startVertices, endVertices);
 				} else if (effectController.matchingMethod === 'uni-ex') {
 				    correspondence = OPT.findClosestPointsBiasedUnique(startVertices, endVertices);
-				} else {
+				} else if (effectController.matchingMethod === 'original') {
 				    correspondence = OPT.findClosestPointsOriginal(startVertices, endVertices);
 				}
 							
@@ -227,7 +227,11 @@
 			
 			        scene.add(morphMesh);
 			
-			        updateMorph(); // Immediately morph to t=0
+				if (effectController.matchingMethod === 'dust') {
+				    updateMorph(); // Immediately morph to t=0
+				} else {
+				    updateMorphCorr(); // Immediately morph to t=0
+				}
 			        render();
 			    }).catch(err => {
 			        console.error("Error loading models:", err);
@@ -244,7 +248,7 @@
 			    return mesh;
 			}
 
-			function updateMorph() {
+			function updateMorphCorr() {
 			    if (!morphMesh) return;
 			
 			    const position = morphMesh.geometry.attributes.position;
@@ -257,6 +261,22 @@
 				    const z = (1 - t) * startVertices[i].z + t * endVertices[j].z;
 				    position.setXYZ(i, x, y, z);
 				}
+			    position.needsUpdate = true;
+			    render();
+			}
+
+			function updateMorph() {
+			    if (!morphMesh) return;
+			
+			    const position = morphMesh.geometry.attributes.position;
+			    const t = effectController.morphAmount;
+			
+			    for (let i = 0; i < position.count; i++) {
+			        const x = (1 - t) * startVertices[i].x + t * endVertices[i].x;
+			        const y = (1 - t) * startVertices[i].y + t * endVertices[i].y;
+			        const z = (1 - t) * startVertices[i].z + t * endVertices[i].z;
+			        position.setXYZ(i, x, y, z);
+			    }
 			    position.needsUpdate = true;
 			    render();
 			}
